@@ -5,8 +5,12 @@ Gera tabelas estatísticas em Markdown, CSV e gráficos comparativos PNG.
 
 import argparse
 from collections import defaultdict
+import csv
+import math
 import os
 import random
+import statistics
+import sys
 import time
 from typing import Callable, Dict, List, Tuple
 
@@ -23,6 +27,12 @@ from classical import (
     selection_sort,
 )
 from student_template import my_authorial_sort
+
+# O Quick Sort recursivo e o Mirror-Merge chegam a profundidades maiores em N = 10^4.
+sys.setrecursionlimit(10000)
+
+QUADRATIC = ("Bubble Sort", "Selection Sort", "Insertion Sort")
+QUADRATIC_MAX_N = 2500  # acima disso os O(n^2) em Python levam minutos por medição
 
 
 def generate_dataset(n: int, distribution: str) -> List[int]:
@@ -69,7 +79,7 @@ def run_benchmark(
 
             for name, fn in algorithms.items():
                 # Para Bubble/Selection/Insertion, evita tamanhos excessivos que demoram muito
-                if size > 1500 and name in ("Bubble Sort", "Selection Sort", "Insertion Sort") and dist in ("random", "reverse"):
+                if size > QUADRATIC_MAX_N and name in QUADRATIC:
                     continue
 
                 times = []
@@ -90,7 +100,8 @@ def run_benchmark(
                     moves.append(m)
 
                 results[dist][name][size] = {
-                    "time_ms": sum(times) / len(times),
+                    "time_ms": statistics.mean(times),
+                    "time_std_ms": statistics.stdev(times) if len(times) > 1 else 0.0,
                     "comps": sum(comps) / len(comps),
                     "moves": sum(moves) / len(moves),
                 }
@@ -110,54 +121,84 @@ def print_markdown_summary(results: dict, sizes: List[int]):
             row = [alg_name]
             for s in sizes:
                 if s in size_data:
-                    row.append(f"{size_data[s]['time_ms']:.3f} ms")
+                    row.append(f"{size_data[s]['time_ms']:.3f} ± {size_data[s]['time_std_ms']:.3f}")
                 else:
                     row.append("—")
             print("| " + " | ".join(row) + " |")
 
 
-def plot_benchmark_results(results: dict, output_path: str = "benchmark_results.png"):
-    """Gera gráficos de curvas de tempo e comparações usando matplotlib."""
-    distributions = list(results.keys())
-    fig, axes = plt.subplots(len(distributions), 2, figsize=(14, 4 * len(distributions)))
+def save_csv(results: dict, output_path: str):
+    """Salva todas as medições em CSV (uma linha por distribuição/algoritmo/N)."""
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["distribuicao", "algoritmo", "n", "tempo_medio_ms", "tempo_desvio_ms",
+                    "comparacoes", "movimentacoes", "comps_sobre_nlog2n"])
+        for dist, algs in results.items():
+            for alg_name, size_map in algs.items():
+                for n in sorted(size_map):
+                    d = size_map[n]
+                    ratio = d["comps"] / (n * math.log2(n)) if n > 1 else 0.0
+                    w.writerow([dist, alg_name, n, f"{d['time_ms']:.4f}", f"{d['time_std_ms']:.4f}",
+                                f"{d['comps']:.1f}", f"{d['moves']:.1f}", f"{ratio:.4f}"])
+    print(f"📄 CSV salvo em: {output_path}")
 
-    if len(distributions) == 1:
-        axes = [axes]
+
+# Paleta categórica em ordem fixa (cor segue o algoritmo em todos os painéis)
+# + marcadores distintos para não depender só da cor.
+STYLE = {
+    "Mirror-Merge Sort (Autoral)": ("#2a78d6", "o"),
+    "Merge Sort": ("#eb6834", "s"),
+    "Quick Sort": ("#1baf7a", "^"),
+    "Authorial (DPES)": ("#eda100", "D"),
+    "Insertion Sort": ("#e87ba4", "v"),
+    "Selection Sort": ("#008300", "P"),
+    "Bubble Sort": ("#4a3aa7", "X"),
+}
+
+
+def plot_benchmark_results(results: dict, output_path: str = "benchmark_results.png"):
+    """Gera gráficos (escala log-log) de tempo, comparações e movimentações × N."""
+    distributions = list(results.keys())
+    metrics = [("time_ms", "Tempo médio (ms)"), ("comps", "Comparações"), ("moves", "Movimentações")]
+    fig, axes = plt.subplots(len(distributions), 3, figsize=(18, 4.2 * len(distributions)), squeeze=False)
 
     for idx, dist in enumerate(distributions):
-        ax_time = axes[idx][0]
-        ax_comps = axes[idx][1]
-
-        for alg_name, size_map in results[dist].items():
-            sizes = sorted(size_map.keys())
-            times = [size_map[s]["time_ms"] for s in sizes]
-            comps = [size_map[s]["comps"] for s in sizes]
-
-            ax_time.plot(sizes, times, marker="o", label=alg_name)
-            ax_comps.plot(sizes, comps, marker="s", label=alg_name)
-
-        ax_time.set_title(f"Tempo de Execução (ms) — [{dist.title()}]")
-        ax_time.set_xlabel("Tamanho da Entrada (N)")
-        ax_time.set_ylabel("Tempo Médio (ms)")
-        ax_time.grid(True, linestyle="--", alpha=0.6)
-        ax_time.legend()
-
-        ax_comps.set_title(f"Número de Comparações — [{dist.title()}]")
-        ax_comps.set_xlabel("Tamanho da Entrada (N)")
-        ax_comps.set_ylabel("Comparações")
-        ax_comps.grid(True, linestyle="--", alpha=0.6)
-        ax_comps.legend()
+        for col, (key, label) in enumerate(metrics):
+            ax = axes[idx][col]
+            for alg_name, size_map in results[dist].items():
+                # Escala log não representa zero (ex.: Quick/Selection sem movimentações em vetor ordenado)
+                sizes = [s for s in sorted(size_map.keys()) if size_map[s][key] > 0]
+                values = [size_map[s][key] for s in sizes]
+                if not sizes:
+                    continue
+                color, marker = STYLE.get(alg_name, ("#52514e", "."))
+                lw = 2.6 if "Mirror" in alg_name else 1.6
+                ax.plot(sizes, values, marker=marker, markersize=6, linewidth=lw, color=color, label=alg_name)
+            ax.set_xscale("log")
+            ax.set_yscale("log")
+            ax.set_title(f"{label} × N [{dist}]", fontsize=10)
+            ax.set_xlabel("N (escala log)")
+            ax.set_ylabel(label)
+            ax.grid(True, which="major", linestyle="--", alpha=0.35)
+            for spine in ("top", "right"):
+                ax.spines[spine].set_visible(False)
+        axes[idx][0].legend(fontsize=8, frameon=False)
 
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
+    plt.savefig(output_path, dpi=130)
+    plt.close(fig)
     print(f"\n🖼️ Gráfico salvo com sucesso em: {output_path}")
 
 
 def main():
     parser = argparse.ArgumentParser(description="Benchmark de Algoritmos de Ordenação — APA")
-    parser.add_argument("--trials", type=int, default=3, help="Número de repetições por teste")
+    parser.add_argument("--trials", type=int, default=5, help="Número de repetições por teste")
     parser.add_argument("--plot", type=str, default="benchmark_results.png", help="Caminho para salvar o gráfico")
+    parser.add_argument("--csv", type=str, default="benchmark_results.csv", help="Caminho para salvar o CSV")
+    parser.add_argument("--max-n", type=int, default=10000, help="Maior N a medir")
     args = parser.parse_args()
+    # Evita UnicodeEncodeError dos emojis no console do Windows (cp1252)
+    sys.stdout.reconfigure(encoding="utf-8")
 
     algorithms = {
         "Bubble Sort": bubble_sort,
@@ -169,12 +210,13 @@ def main():
         "Mirror-Merge Sort (Autoral)": my_authorial_sort,
     }
 
-    sizes = [10, 50, 100, 250, 500, 1000]
+    sizes = [n for n in (10, 100, 500, 1000, 2500, 5000, 10000) if n <= args.max_n]
     distributions = ["random", "sorted", "reverse", "duplicates", "almost_sorted"]
 
     random.seed(42)
     results = run_benchmark(algorithms, sizes, distributions, trials=args.trials)
     print_markdown_summary(results, sizes)
+    save_csv(results, args.csv)
     plot_benchmark_results(results, args.plot)
 
 
