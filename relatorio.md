@@ -4,6 +4,8 @@
 
 **Autora:** Rafaela Pacheco
 
+**Repositório (código-fonte, testes e benchmarks):** [https://github.com/rafaelapnunes/metodos-ordenacao-apa](https://github.com/rafaelapnunes/metodos-ordenacao-apa)
+
 > **Natureza do método (declaração de originalidade).** O Mirror-Merge Sort **não é um algoritmo inédito**: é uma **adaptação declarada** que combina três técnicas publicadas: (i) a fusão bitônica pelas extremidades, descrita por Sedgewick; (ii) a alternância de direção entre subproblemas, do Bitonic Sort de Batcher; e (iii) o teste que pula a fusão quando as metades já estão em ordem, também de Sedgewick. A Seção 1.3 identifica as fontes, a Seção 1.4 descreve os refinamentos e a Seção 4.2 compara diretamente com cada técnica.
 
 ---
