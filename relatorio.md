@@ -337,9 +337,7 @@ Ou seja, a mesma propriedade que elimina os testes de fronteira (poder atravessa
 - **Repetições intercaladas:** em cada repetição, todos os algoritmos ordenam o mesmo vetor, em ordem sorteada, para que oscilações de carga e temperatura da máquina afetem todos igualmente. Em Python, o coletor de lixo fica desligado durante cada medição (como no módulo `timeit`). O tempo reportado é a **mediana** ± desvio-padrão. Toda saída é conferida contra `sorted()` / `std::sort`. Os dados são gerados com semente fixa (42).
 - **Versões medidas:** "Mirror-Merge" é a versão final (com atalho); "sem atalho" tem só os refinamentos 1 e 2; "v1" é a versão original, incluída **apenas no benchmark C++** (`cpp/benchmark.cpp`) como referência, para medir o efeito dos refinamentos na mesma execução.
 - **Reprodutibilidade:** o benchmark C++ foi executado 3 vezes. As medianas variaram até cerca de 20% entre execuções em alguns casos, mas a ordem entre os algoritmos e todas as conclusões abaixo se mantiveram nas três.
-- **Artefatos:** `python/benchmark_results.png` (tempo, comparações e movimentações × N, em escala log-log), `python/benchmark_results.csv`, `python/benchmark_output.md`, `cpp/benchmark_results_cpp.csv` e `cpp/benchmark_output_cpp.md`.
-
-![Resultados do benchmark](python/benchmark_results.png)
+- **Artefatos:** `python/benchmark_results.csv`, `python/benchmark_output.md`, `cpp/benchmark_results_cpp.csv` e `cpp/benchmark_output_cpp.md`. As figuras deste relatório (pasta `figuras/`) são geradas a partir desses CSVs por `python python/figures.py`. As Figuras 1 a 3 usam os dados do C++, o único benchmark que inclui a v1; as contagens de operações não dependem da linguagem. A grade completa do benchmark Python, com todos os algoritmos, está no Anexo A.
 
 ### 5.2 Comparações: as fórmulas confirmadas
 
@@ -357,6 +355,14 @@ Valores médios em N = 10⁴ (Python; as contagens independem da linguagem).
 - **Com atalho**, nos vetores ordenado e reverso o número cai para 12 950 e 12 951, abaixo de $2(n-1) = 19\,998$ (Seção 3.2) e cerca de **5× menos que o Merge clássico**.
 - No caso aleatório, o atalho custa 5,5% a mais que a versão sem atalho (130 408 contra 123 617), dentro do limite $C_{max}(10^4) = 135\,423$, e 8% a mais que o Merge clássico. Esse é o preço de testar extremos que quase nunca estão separados (Seção 3.2).
 - No cenário quase ordenado, o atalho acerta em muitos segmentos pequenos e o resultado (113 038) fica entre o sem atalho e o Merge clássico.
+
+![Figura 1: comparações divididas por n·lg n, em função de N, nos cenários aleatório, ordenado e reverso](figuras/fig1_comparacoes_normalizadas.png)
+
+**Figura 1.** Comparações divididas por $n\log_2 n$ (dados do C++). Nessa escala, um custo $\Theta(n\log n)$ aparece como uma curva quase horizontal, e um custo linear aparece como uma curva que cai. No aleatório, todas as curvas se estabilizam perto de 1 (em N = 10⁴, de 0,90 no Merge clássico a 1,01 na v1). No ordenado e no reverso, a versão final cai continuamente, sinal de custo linear, enquanto as demais se estabilizam: perto de 1 nas versões sem atalho e v1, e perto de 0,5 no Merge clássico.
+
+![Figura 2: comparações em função de N nos vetores ordenado e reverso, em escala log-log, com as retas n − 1 e 2(n − 1)](figuras/fig2_ordenado_reverso.png)
+
+**Figura 2.** Comparações nos vetores ordenado e reverso (log-log, dados do C++). A versão final fica sempre entre as retas de referência $n - 1$ e $2(n - 1)$ (Seção 3.2), bem abaixo do Merge clássico e da versão sem atalho.
 
 ### 5.3 Movimentações
 
@@ -396,12 +402,16 @@ Aqui o Merge Sort do pacote usa índices, um buffer único e o mesmo critério d
 | Repetidos | 10 000 | 0,335 ± 0,028 | 0,319 ± 0,027 | 0,352 ± 0,037 | 0,350 ± 0,035 | 0,214 ± 0,008 |
 | Quase ordenado | 10 000 | 0,240 ± 0,034 | 0,234 ± 0,011 | 0,280 ± 0,011 | 0,266 ± 0,010 | 0,132 ± 0,007 |
 
+![Figura 3: tempo mediano em C++ com N = 10 000, por cenário, para a v1, a versão sem atalho, a versão final e o Merge Sort clássico](figuras/fig3_tempo_cpp.png)
+
+**Figura 3.** Tempo mediano em C++ com N = 10⁴ (os valores exatos estão na tabela acima). Em cada cenário, as barras seguem a ordem v1 → sem atalho → final → Merge clássico, mostrando o efeito acumulado dos refinamentos.
+
 (Em N = 10 e 100, os tempos ficam abaixo de 1 µs e são dominados por ruído; por isso a análise usa N ≥ 1000. O desvio de 0,541 da v1 no vetor ordenado vem de uma única medição fora da curva; a mediana não é afetada.)
 
 ### 5.6 Análise crítica
 
 1. **As contagens seguem a teoria exatamente.** As comparações sem atalho coincidem com $W(n)$, as com atalho ficam entre $n - 1$ e $C_{max}(n)$ e abaixo de $2(n-1)$ nos vetores ordenado e reverso, e as movimentações coincidem com $M(n)$ em todos os cenários (Seções 5.2 e 5.3).
-2. **A curva de crescimento é a de um algoritmo $\Theta(n\log n)$.** No gráfico log-log, o Mirror-Merge acompanha paralelamente o Merge e o Quick Sort, enquanto os algoritmos $\Theta(n^2)$ têm inclinação visivelmente maior (≈ 2). Mesmo nos vetores ordenados, em que as comparações são lineares, o tempo cresce como $n\log n$, porque as movimentações continuam $\Theta(n\log n)$ (Seção 3.3).
+2. **A curva de crescimento é a de um algoritmo $\Theta(n\log n)$.** No gráfico log-log do Anexo A, o Mirror-Merge acompanha paralelamente o Merge e o Quick Sort, enquanto os algoritmos $\Theta(n^2)$ têm inclinação visivelmente maior (≈ 2). Mesmo nos vetores ordenados, em que as comparações são lineares, o tempo cresce como $n\log n$, porque as movimentações continuam $\Theta(n\log n)$ (Seção 3.3).
 3. **Na comparação justa (C++), o Mirror-Merge empata no caso aleatório e vence o Merge clássico nos cenários com ordem pré-existente:** **27% mais rápido** no ordenado (0,138 contra 0,189 ms), **21%** no reverso, **10%** no quase ordenado e **4%** nos repetidos. No aleatório, a diferença (0,557 contra 0,560 ms) é muito menor que o desvio-padrão.
 4. **Efeito de cada refinamento (C++, mesma execução).** Nos vetores ordenado e reverso, a v1 levava cerca de 0,255 ms; os refinamentos 1 e 2 reduziram para cerca de 0,17 ms e o atalho para cerca de 0,14 ms, **45% menos que a v1** no total. No caso aleatório, porém, a v1 é a mais rápida das três versões (0,538 contra 0,557 e 0,574 ms). *Hipótese, não verificada no código de máquina:* o compilador pode ter traduzido a fusão da v1 com instruções condicionais sem desvio, que custam o mesmo com dados previsíveis ou aleatórios, e a das versões novas com desvios, que são quase gratuitos quando o resultado da comparação é previsível (ordenado, reverso) e caros quando é aleatório. Isso também indica que o refinamento 1 sozinho tem pouco efeito em C++: com `-O3`, o g++ já costuma tirar do laço testes que não mudam (*loop unswitching*).
 5. **O Quick Sort é o mais rápido** em todos os cenários e nas duas linguagens: é in-place, move pouco e, com mediana de três, não degrada em entradas ordenadas ou reversas.
@@ -446,3 +456,11 @@ Aqui o Merge Sort do pacote usa índices, um buffer único e o mesmo critério d
   6. **Relatório**: redigiu as Seções 1.4, 2 (pseudocódigo, exemplos e invariantes), 3 (deduções de $W(n)$, $C_{max}(n)$, melhor caso, caso médio e movimentações; estabilidade), 4.2, 5 e 6, a partir das medições.
 - **Modificações realizadas:** *(a preencher pela autora: o que foi reescrito, cortado ou corrigido no texto e no código sugeridos.)*
 - **Como o resultado foi validado:** as fórmulas $W(n)$, $C_{max}(n)$ e $M(n)$ são verificadas automaticamente nos testes, em Python e em C++ (todo n de 1 a 1024 pela implementação e até 10⁴ pelas recorrências); o melhor e o pior caso são confirmados por entradas construídas que atingem exatamente $n - 1$ e $C_{max}(n)$; o contraexemplo e a frequência de instabilidade são testes automatizados com semente fixa; a suíte Python (94 testes) e a suíte C++ passam. *(a autora deve acrescentar sua própria verificação, por exemplo refazer à mão as deduções da Seção 3 e os exemplos das Seções 2.2 e 2.3.)*
+
+---
+
+## Anexo A: grade completa do benchmark Python
+
+Tempo, comparações e movimentações × N (escala log-log) para todos os algoritmos e cenários, a partir de `python/benchmark_results.csv`. A versão sem atalho não aparece aqui; ela está nas Figuras 1 a 3 e nas tabelas da Seção 5.
+
+![Anexo A: grade de 5 cenários por 3 métricas com todos os algoritmos do benchmark Python](figuras/anexo_grade_python.png)

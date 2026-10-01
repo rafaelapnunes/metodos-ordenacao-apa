@@ -41,7 +41,10 @@ test_python:
 benchmark_python:
 	$(PYTHON) python/benchmark.py --trials 10 --plot python/benchmark_results.png --csv python/benchmark_results.csv --md python/benchmark_output.md
 
+figures:
+	$(PYTHON) python/figures.py
+
 clean:
 	rm -rf $(BUILD_DIR) *.png
 
-.PHONY: all install_python test_cpp benchmark_cpp run_benchmark_cpp test_python benchmark_python clean
+.PHONY: all install_python test_cpp benchmark_cpp run_benchmark_cpp test_python benchmark_python figures clean

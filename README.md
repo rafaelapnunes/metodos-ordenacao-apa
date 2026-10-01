@@ -14,12 +14,14 @@ O Mirror-Merge Sort é uma adaptação declarada do Merge Sort: ordena a metade 
 .
 ├── relatorio.md                      # Relatório técnico (entregável, Opção A)
 ├── requirements.txt                  # Dependências Python (matplotlib)
-├── Makefile                          # Automação de testes e benchmarks
+├── Makefile                          # Automação de testes, benchmarks e figuras
+├── figuras/                          # Figuras do relatório (geradas por python/figures.py)
 │
 ├── python/
 │   ├── student_template.py           # ★ Mirror-Merge Sort: função my_authorial_sort
 │   ├── test_suite.py                 # Suíte de testes obrigatória (unittest)
 │   ├── benchmark.py                  # Benchmark: tempo, comparações e movimentações × N
+│   ├── figures.py                    # Gera as figuras do relatório a partir dos CSVs
 │   ├── benchmark_results.png         # Gráficos gerados pelo benchmark
 │   ├── benchmark_results.csv         # Todas as medições
 │   ├── benchmark_output.md           # Tabelas de tempo (mediana ± desvio-padrão)
@@ -81,12 +83,23 @@ make test_cpp            # compila e roda a suíte de testes em C++
 make run_benchmark_cpp   # 100 repetições; gera cpp/benchmark_output_cpp.md e cpp/benchmark_results_cpp.csv
 ```
 
+### Figuras do relatório
+
+Depois de rodar os dois benchmarks:
+
+```bash
+python python/figures.py
+```
+
+Lê `cpp/benchmark_results_cpp.csv` e `python/benchmark_results.csv` e gera em `figuras/` as Figuras 1 a 3 e a grade do Anexo A.
+
 ### Usando o Makefile para Python (Linux/macOS)
 
 ```bash
 make install_python
 make test_python
 make benchmark_python
+make figures
 ```
 
 No Windows, onde `python3` costuma não existir, passe o interpretador: `make PYTHON=python test_python`.
