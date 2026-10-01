@@ -1,74 +1,75 @@
-# Pacote de Códigos e Benchmarks — TP1 (APA)
+# Mirror-Merge Sort: TP1 de Análise e Projetos de Algoritmos (APA)
 
-Este diretório contém a implementação dos algoritmos de ordenação clássicos, o algoritmo autoral de referência (**DPES - Dual-Pivot Extremes Sieve Sort**), a suíte de testes de validação obrigatória e o framework de medição de desempenho e gráficos em **Python 3** e **C++17**.
+Trabalho Prático 1 de Rafaela Pacheco. O repositório contém o algoritmo autoral **Mirror-Merge Sort** (Ordenação por Fusão Espelhada), sua suíte de testes, o framework de benchmark e o relatório técnico.
+
+O Mirror-Merge Sort é uma adaptação declarada do Merge Sort: ordena a metade esquerda em um sentido e a direita no sentido oposto, formando uma sequência bitônica que é fundida por dois ponteiros vindos das extremidades, sem testes de fronteira por metade. A origem das técnicas (Sedgewick e Batcher), a análise assintótica e os resultados experimentais estão no relatório.
+
+📄 **Relatório técnico:** [`relatorio.md`](relatorio.md)
 
 ---
 
 ## 📂 Estrutura de Arquivos
 
 ```text
-codigo/
-├── Makefile                          # Automação de compilação, testes e benchmarks
-├── README.md                         # Este guia de execução e desenvolvimento
+.
+├── relatorio.md                      # Relatório técnico (entregável, Opção A)
+├── requirements.txt                  # Dependências Python (matplotlib)
+├── Makefile                          # Automação de testes e benchmarks
 │
-├── python/                           # Implementação em Python 3
-│   ├── classical.py                  # Algoritmos clássicos (Bubble, Selection, Insertion, Merge, Quick)
-│   ├── authorial.py                  # Algoritmo autoral de referência (DPES)
-│   ├── metrics.py                    # Instrumentação (contagem de comparações, trocas e tempos)
-│   ├── test_suite.py                 # Suíte com todos os cenários de teste obrigatórios (unittest)
-│   ├── benchmark.py                  # Framework de benchmark com geração de gráficos matplotlib
-│   └── student_template.py           # Template inicial para o aluno desenvolver seu algoritmo
+├── python/
+│   ├── student_template.py           # ★ Mirror-Merge Sort: função my_authorial_sort
+│   ├── test_suite.py                 # Suíte de testes obrigatória (unittest)
+│   ├── benchmark.py                  # Benchmark: tempo, comparações e movimentações × N
+│   ├── benchmark_results.png         # Gráficos gerados pelo benchmark
+│   ├── benchmark_results.csv         # Todas as medições
+│   ├── benchmark_output.md           # Tabelas de tempo (média ± desvio-padrão)
+│   ├── classical.py                  # Baselines do professor (Bubble, Selection, Insertion, Merge, Quick)
+│   ├── authorial.py                  # Algoritmo de referência do professor (DPES), usado só como baseline
+│   └── metrics.py                    # Utilitários de instrumentação do professor
 │
-└── cpp/                              # Implementação em C++17 (Alta Performance)
-    ├── classical.hpp / .cpp          # Algoritmos clássicos instrumentados
-    ├── authorial.hpp / .cpp          # Algoritmo autoral DPES em C++
-    ├── test_runner.cpp               # Testes unitários com asserções em C++
-    └── benchmark.cpp                 # Benchmark estatístico de alta resolução em C++
+└── cpp/                              # Pacote C++17 do professor (baselines e DPES)
 ```
+
+> O Mirror-Merge Sort está implementado **apenas em Python**. A pasta `cpp/` é o pacote original fornecido pelo professor e não contém o algoritmo autoral.
 
 ---
 
 ## 🚀 Como Executar
 
-### 1. Suíte de Testes Obrigatória
+Requisitos: Python 3.8+ e as dependências de `requirements.txt`.
 
-* **Executar testes em Python:**
-  ```bash
-  make test_python
-  # ou: python3 python/test_suite.py
-  ```
+```bash
+pip install -r requirements.txt
+```
 
-* **Compilar e executar testes em C++:**
-  ```bash
-  make test_cpp
-  ```
+### 1. Suíte de testes
 
----
+```bash
+python python/test_suite.py
+```
 
-### 2. Benchmarks e Comparação de Desempenho
+Executa os cenários obrigatórios do enunciado para o Mirror-Merge Sort e para os baselines: vetor vazio, unitário, ordenado, reverso, com repetições e aleatório, com N = 10, 10², 10³ e 10⁴. Também verifica a fórmula exata de comparações e movimentações deduzida no relatório e o contraexemplo de instabilidade.
 
-* **Executar benchmarks em Python (Gera tabelas Markdown e o gráfico `benchmark_results.png`):**
-  ```bash
-  make benchmark_python
-  # ou: python3 python/benchmark.py --trials 5 --plot benchmark_results.png  # também gera benchmark_results.csv
-  ```
+Para rodar só os testes embutidos no template:
 
-* **Executar benchmarks em C++:**
-  ```bash
-  make run_benchmark_cpp
-  ```
+```bash
+python python/student_template.py
+```
 
----
+### 2. Benchmark
 
-## 🧑‍💻 Guia para o Aluno (Como usar o template)
+```bash
+python python/benchmark.py --trials 10 --plot python/benchmark_results.png --csv python/benchmark_results.csv --md python/benchmark_output.md
+```
 
-1. Abra o arquivo [`python/student_template.py`](file:///home/diogo/447658-ANALISE-E-PROJETOS-DE-ALGORITMOS/02-Semana-2-%2803-09-04-09%29/codigo/python/student_template.py).
-2. Escreva a lógica do seu algoritmo na função `my_authorial_sort(arr)`.
-3. Certifique-se de incrementar os contadores de comparações (`comps`) e movimentações (`moves`).
-4. Execute o arquivo diretamente para validar seu algoritmo contra a suíte de testes:
-   ```bash
-   python3 python/student_template.py
-   ```
-5. Para comparar seu algoritmo diretamente contra a literatura no benchmark gráfico:
-   * Importe seu método no `python/benchmark.py` e adicione ao dicionário `algorithms`.
-   * Execute `python3 python/benchmark.py` para gerar as curvas de tempo e comparações para o seu relatório ou apresentação!
+Mede, para N de 10 a 10⁴ e cinco distribuições (aleatória, ordenada, reversa, com repetições e quase ordenada), o tempo médio com desvio-padrão, as comparações e as movimentações. A semente padrão é 42 (`--seed`). Os algoritmos Θ(n²) param em N = 2500.
+
+### 3. Usando o Makefile (Linux/macOS)
+
+```bash
+make install_python
+make test_python
+make benchmark_python
+```
+
+No Windows, onde `python3` costuma não existir, passe o interpretador: `make PYTHON=python test_python`.
