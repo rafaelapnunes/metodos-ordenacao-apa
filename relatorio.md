@@ -430,32 +430,45 @@ Aqui o Merge Sort do pacote usa índices, um buffer único e o mesmo critério d
 
 ---
 
-## 7. Declaração Obrigatória de Autoria e Uso de IA
+## 7. Declaração de Autoria e Uso de IA
+
+Usei duas ferramentas de IA neste trabalho: o Gemini no início e o Claude na maior parte do desenvolvimento. Abaixo descrevo o que cada uma fez e quais decisões foram minhas.
 
 ### 7.1 Gemini
 
-- **Ferramenta/fonte utilizada:** IA Generativa Gemini 3.1 Pro (via Antigravity AI).
-- **Motivo de uso:** brainstorming para chegar a um método que fosse além de uma variação cosmética; revisão das demonstrações de corretude; implementação inicial e execução automatizada da suíte de testes.
-- **Como foi utilizada:**
-  1. Diálogo sobre famílias de ordenação, que levou à ideia da sequência bitônica para eliminar os testes de fronteira.
-  2. Escrita do código guiada pelo template `student_template.py`.
-  3. Execução das ferramentas de benchmark.
-- **Modificações realizadas:** *(a preencher pela autora: descrever com as próprias palavras o que foi decidido/alterado manualmente, por exemplo, a escolha de alternar a direção na recursão, a escolha de `<=`/`>=` nos desempates, ajustes no código gerado.)*
-- **Como o resultado foi validado:** teste de mesa em vetores pequenos (Seções 2.2 e 2.3) e aprovação na suíte `test_suite.py`.
+- **Ferramenta:** Gemini 3.1 Pro, pelo Antigravity.
+- **Motivo:** discutir ideias no começo do trabalho, para chegar a um método que não fosse só uma mudança cosmética de um algoritmo clássico.
+- **Como foi usada:** numa conversa sobre famílias de algoritmos de ordenação, chegamos à ideia de ordenar as duas metades em sentidos opostos para formar uma sequência bitônica. O Gemini escreveu a primeira versão do código (a v1) a partir do template da disciplina.
+- **O que restou desse uso:** a ideia central e a estrutura recursiva com o parâmetro de direção. O laço de fusão, o atalho, os testes, o benchmark e o relatório foram refeitos depois (Seção 7.2). A v1 aparece no relatório e no benchmark C++ só como referência de comparação.
+- **Modificações feitas por mim:** o código do Gemini foi a base do projeto, mas a maior parte dele foi depois reescrita. As mudanças mais importantes sobre essa base foram decididas por mim: os três refinamentos do algoritmo (incluindo o atalho adaptativo), a versão em C++ e o refazimento dos experimentos com mais rigor. A implementação dessas mudanças foi feita com o Claude (Seções 7.2 e 7.3).
+- **Como validei:** teste de mesa em vetores pequenos e a suíte de testes da disciplina.
 
 ### 7.2 Claude
 
-- **Ferramenta/fonte utilizada:** Claude Opus 5.5 (Anthropic), via Claude Code.
-- **Motivo de uso:** revisar a conformidade do projeto com o enunciado do TP1, propor e implementar melhorias e reproduzir os experimentos em C++.
-- **Como foi utilizada:**
-  1. **Auditoria**: comparou o projeto com o checklist do enunciado e apontou (a) a afirmação incorreta de estabilidade, com contraexemplo, (b) a ausência de atribuição às técnicas de Sedgewick e Batcher, e (c) a afirmação incorreta de que o método faz menos comparações.
-  2. **Testes**: adicionou o Mirror-Merge à suíte `test_suite.py` (classes `TestMirrorMergeSort`, `TestMirrorMergeSortBasic` e `TestMirrorMergeScaling`, com N = 10 a 10⁴ nos cenários obrigatórios, verificação das fórmulas de comparações e movimentações, entradas que atingem o melhor e o pior caso e o contraexemplo de instabilidade).
-  3. **Benchmark**: estendeu `benchmark.py` até N = 10⁴, com repetições intercaladas, desvio-padrão, gráfico de movimentações × N, eixos log-log, exportação CSV e Markdown e semente configurável; atualizou o README e o Makefile e adicionou `requirements.txt`.
-  4. **Refinamentos do algoritmo (Seção 1.4)**: na segunda revisão, **propôs e implementou** os três refinamentos (sentido testado fora do laço, laço `i < j` sem a comparação final e atalho adaptativo com teste estrito no empate e só para m ≥ 3) em `student_template.py`, preservando a versão sem atalho pelo parâmetro `adaptive`.
-  5. **Versão C++**: escreveu `cpp/mirror_merge.hpp/.cpp` (porta do algoritmo, com e sem atalho), os testes correspondentes em `cpp/test_runner.cpp` e a extensão de `cpp/benchmark.cpp` (média, mediana, desvio-padrão, 100 repetições intercaladas, CSV e a v1 como referência); executou os testes e os benchmarks.
-  6. **Relatório**: redigiu as Seções 1.4, 2 (pseudocódigo, exemplos e invariantes), 3 (deduções de $W(n)$, $C_{max}(n)$, melhor caso, caso médio e movimentações; estabilidade), 4.2, 5 e 6, a partir das medições.
-- **Modificações realizadas:** *(a preencher pela autora: o que foi reescrito, cortado ou corrigido no texto e no código sugeridos.)*
-- **Como o resultado foi validado:** as fórmulas $W(n)$, $C_{max}(n)$ e $M(n)$ são verificadas automaticamente nos testes, em Python e em C++ (todo n de 1 a 1024 pela implementação e até 10⁴ pelas recorrências); o melhor e o pior caso são confirmados por entradas construídas que atingem exatamente $n - 1$ e $C_{max}(n)$; o contraexemplo e a frequência de instabilidade são testes automatizados com semente fixa; a suíte Python (94 testes) e a suíte C++ passam. *(a autora deve acrescentar sua própria verificação, por exemplo refazer à mão as deduções da Seção 3 e os exemplos das Seções 2.2 e 2.3.)*
+- **Ferramenta:** Claude Opus 5.5 (Anthropic), pelo Claude Code.
+- **Motivo:** revisar o trabalho em relação ao enunciado e melhorar o algoritmo, os testes, os experimentos e o relatório.
+- **Como foi usada:**
+  1. **Revisão:** comparou o projeto com o enunciado e apontou três erros na versão inicial: a afirmação de que o método era estável, a falta de crédito às técnicas de Sedgewick e Batcher, e a afirmação de que ele fazia menos comparações que o Merge Sort.
+  2. **Algoritmo:** propôs e implementou os três refinamentos da Seção 1.4.
+  3. **Versão em C++:** escreveu a versão C++ do algoritmo e seus testes.
+  4. **Testes:** escreveu os testes das fórmulas de comparações e movimentações, do melhor e do pior caso e da instabilidade.
+  5. **Experimentos:** ampliou os benchmarks em Python e C++ e escreveu o script das figuras.
+  6. **Relatório:** redigiu as Seções 1.4 a 6, incluindo as provas e as deduções.
+- **Modificações feitas por mim:** cada mudança passou pela minha aprovação antes de entrar no repositório, e várias saíram de pedidos meus (Seção 7.3).
+- **Como validei:** os testes automatizados (94 em Python e a suíte em C++) conferem as fórmulas do relatório, e entradas construídas confirmam que o melhor e o pior caso são atingidos exatamente. A meu pedido, o repositório também foi clonado numa pasta limpa e executado do zero, com os mesmos resultados de contagem.
+
+### 7.3 Minha participação
+
+As principais decisões do projeto foram minhas:
+
+1. **Escolha do método.** Levei adiante a ideia do Mirror-Merge e o assumi como adaptação declarada da literatura, e não como algoritmo inédito.
+2. **Direção do trabalho.** Pedi a análise do projeto em relação ao enunciado, defini como meta a nota máxima e escolhi seguir o plano de etapas, decidindo a ordem de cada uma.
+3. **Escopo do algoritmo.** Decidi implementar os três refinamentos, incluindo o atalho adaptativo, que era opcional no plano e é a parte mais original do método.
+4. **Versão em C++.** Decidi manter e concluir a versão C++ em vez de descartá-la, e instalei e configurei o compilador (MSYS2, g++ e make) para que os testes e o benchmark pudessem rodar.
+5. **Rigor experimental.** Pedi o tempo médio para cumprir o enunciado ao pé da letra e, quando as medições na bateria saíram distorcidas, decidi descartá-las e refazer tudo com o notebook na tomada.
+6. **Apresentação dos resultados.** Pedi gráficos focados no lugar da grade única, que ficou como anexo.
+7. **Controle do repositório.** Determinei que nada fosse commitado sem minha revisão e autorizei cada commit e push.
+8. **Esta declaração.** Decidi reestruturá-la para que ficasse clara e objetiva.
 
 ---
 
