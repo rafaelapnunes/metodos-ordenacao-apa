@@ -6,8 +6,10 @@ Gera tabelas estatísticas em Markdown, CSV e gráficos comparativos PNG.
 import argparse
 from collections import defaultdict
 import csv
+import gc
 import math
 import os
+import platform
 import random
 import statistics
 import sys
@@ -67,7 +69,7 @@ def run_benchmark(
     Executa medições de tempo, comparações e movimentações para cada algoritmo,
     tamanho e distribuição.
     """
-    # results[dist][alg_name][size] = {'time_ms': ..., 'comps': ..., 'moves': ...}
+    # results[dist][alg_name][size] = {'time_ms' (mediana), 'time_mean_ms', 'time_std_ms', 'comps', 'moves'}
     results = defaultdict(lambda: defaultdict(lambda: defaultdict(dict)))
 
     for dist in distributions:
@@ -77,68 +79,86 @@ def run_benchmark(
             # Gera datasets fixos por repetição para garantir comparação justa
             datasets = [generate_dataset(size, dist) for _ in range(trials)]
 
-            for name, fn in algorithms.items():
+            active = {
+                name: fn for name, fn in algorithms.items()
                 # Para Bubble/Selection/Insertion, evita tamanhos excessivos que demoram muito
-                if size > QUADRATIC_MAX_N and name in QUADRATIC:
-                    continue
+                if not (size > QUADRATIC_MAX_N and name in QUADRATIC)
+            }
+            samples = {name: {"times": [], "comps": [], "moves": []} for name in active}
 
-                times = []
-                comps = []
-                moves = []
-
-                for data in datasets:
+            # Repetições intercaladas: em cada repetição todos os algoritmos rodam sobre o mesmo
+            # vetor, em ordem embaralhada, para que variações de carga/temperatura da máquina
+            # afetem todos igualmente. O GC fica desligado durante a medição (como no timeit).
+            order = list(active)
+            for data in datasets:
+                random.shuffle(order)
+                for name in order:
                     data_copy = list(data)
+                    gc.disable()
                     start = time.perf_counter()
-                    res, c, m = fn(data_copy)
+                    res, c, m = active[name](data_copy)
                     elapsed_ms = (time.perf_counter() - start) * 1000.0
+                    gc.enable()
 
                     # Validação de sanidade
                     assert res == sorted(data), f"Erro de ordenação em {name}!"
 
-                    times.append(elapsed_ms)
-                    comps.append(c)
-                    moves.append(m)
+                    samples[name]["times"].append(elapsed_ms)
+                    samples[name]["comps"].append(c)
+                    samples[name]["moves"].append(m)
 
+            for name, smp in samples.items():
+                times = smp["times"]
                 results[dist][name][size] = {
-                    "time_ms": statistics.mean(times),
+                    "time_ms": statistics.median(times),
+                    "time_mean_ms": statistics.mean(times),
                     "time_std_ms": statistics.stdev(times) if len(times) > 1 else 0.0,
-                    "comps": sum(comps) / len(comps),
-                    "moves": sum(moves) / len(moves),
+                    "comps": statistics.mean(smp["comps"]),
+                    "moves": statistics.mean(smp["moves"]),
                 }
 
     return results
 
 
-def print_markdown_summary(results: dict, sizes: List[int]):
-    """Imprime tabela formatada em Markdown com os resultados comparativos."""
+def print_markdown_summary(results: dict, sizes: List[int], output_path: str = None):
+    """Imprime (e opcionalmente salva) tabelas Markdown de tempo médio ± desvio-padrão."""
+    lines = [
+        "# Resultados do benchmark (tempo em ms, mediana ± desvio-padrão)",
+        "",
+        f"Python {platform.python_version()} | {platform.system()} {platform.release()} | {platform.processor()}",
+    ]
     for dist, algs in results.items():
-        print(f"\n### Resultados: Distribuição `{dist}` (Tempo em ms)")
-        header = "| Algoritmo | " + " | ".join(f"N={s}" for s in sizes) + " |"
-        sep = "| :--- | " + " | ".join(":---:" for _ in sizes) + " |"
-        print(header)
-        print(sep)
+        lines += ["", f"### Distribuição `{dist}`", ""]
+        lines.append("| Algoritmo | " + " | ".join(f"N={s}" for s in sizes) + " |")
+        lines.append("| :--- | " + " | ".join(":---:" for _ in sizes) + " |")
         for alg_name, size_data in algs.items():
             row = [alg_name]
             for s in sizes:
                 if s in size_data:
                     row.append(f"{size_data[s]['time_ms']:.3f} ± {size_data[s]['time_std_ms']:.3f}")
                 else:
-                    row.append("—")
-            print("| " + " | ".join(row) + " |")
+                    row.append("não medido")
+            lines.append("| " + " | ".join(row) + " |")
+    text = "\n".join(lines) + "\n"
+    print(text)
+    if output_path:
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(text)
+        print(f"📝 Tabelas salvas em: {output_path}")
 
 
 def save_csv(results: dict, output_path: str):
     """Salva todas as medições em CSV (uma linha por distribuição/algoritmo/N)."""
     with open(output_path, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["distribuicao", "algoritmo", "n", "tempo_medio_ms", "tempo_desvio_ms",
+        w.writerow(["distribuicao", "algoritmo", "n", "tempo_mediana_ms", "tempo_media_ms", "tempo_desvio_ms",
                     "comparacoes", "movimentacoes", "comps_sobre_nlog2n"])
         for dist, algs in results.items():
             for alg_name, size_map in algs.items():
                 for n in sorted(size_map):
                     d = size_map[n]
                     ratio = d["comps"] / (n * math.log2(n)) if n > 1 else 0.0
-                    w.writerow([dist, alg_name, n, f"{d['time_ms']:.4f}", f"{d['time_std_ms']:.4f}",
+                    w.writerow([dist, alg_name, n, f"{d['time_ms']:.4f}", f"{d['time_mean_ms']:.4f}", f"{d['time_std_ms']:.4f}",
                                 f"{d['comps']:.1f}", f"{d['moves']:.1f}", f"{ratio:.4f}"])
     print(f"📄 CSV salvo em: {output_path}")
 
@@ -159,7 +179,7 @@ STYLE = {
 def plot_benchmark_results(results: dict, output_path: str = "benchmark_results.png"):
     """Gera gráficos (escala log-log) de tempo, comparações e movimentações × N."""
     distributions = list(results.keys())
-    metrics = [("time_ms", "Tempo médio (ms)"), ("comps", "Comparações"), ("moves", "Movimentações")]
+    metrics = [("time_ms", "Tempo mediano (ms)"), ("comps", "Comparações"), ("moves", "Movimentações")]
     fig, axes = plt.subplots(len(distributions), 3, figsize=(18, 4.2 * len(distributions)), squeeze=False)
 
     for idx, dist in enumerate(distributions):
@@ -191,10 +211,12 @@ def plot_benchmark_results(results: dict, output_path: str = "benchmark_results.
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Benchmark de Algoritmos de Ordenação — APA")
-    parser.add_argument("--trials", type=int, default=5, help="Número de repetições por teste")
+    parser = argparse.ArgumentParser(description="Benchmark de Algoritmos de Ordenação (APA)")
+    parser.add_argument("--trials", type=int, default=10, help="Número de repetições por teste")
     parser.add_argument("--plot", type=str, default="benchmark_results.png", help="Caminho para salvar o gráfico")
     parser.add_argument("--csv", type=str, default="benchmark_results.csv", help="Caminho para salvar o CSV")
+    parser.add_argument("--md", type=str, default="benchmark_output.md", help="Caminho para salvar as tabelas Markdown")
+    parser.add_argument("--seed", type=int, default=42, help="Semente dos geradores de dados")
     parser.add_argument("--max-n", type=int, default=10000, help="Maior N a medir")
     args = parser.parse_args()
     # Evita UnicodeEncodeError dos emojis no console do Windows (cp1252)
@@ -213,9 +235,9 @@ def main():
     sizes = [n for n in (10, 100, 500, 1000, 2500, 5000, 10000) if n <= args.max_n]
     distributions = ["random", "sorted", "reverse", "duplicates", "almost_sorted"]
 
-    random.seed(42)
+    random.seed(args.seed)
     results = run_benchmark(algorithms, sizes, distributions, trials=args.trials)
-    print_markdown_summary(results, sizes)
+    print_markdown_summary(results, sizes, args.md)
     save_csv(results, args.csv)
     plot_benchmark_results(results, args.plot)
 
