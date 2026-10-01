@@ -50,7 +50,7 @@ codigo/
 * **Executar benchmarks em Python (Gera tabelas Markdown e o gráfico `benchmark_results.png`):**
   ```bash
   make benchmark_python
-  # ou: python3 python/benchmark.py --trials 3 --plot benchmark_results.png
+  # ou: python3 python/benchmark.py --trials 5 --plot benchmark_results.png  # também gera benchmark_results.csv
   ```
 
 * **Executar benchmarks em C++:**

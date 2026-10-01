@@ -31,7 +31,7 @@ test_python:
 	python3 python/test_suite.py
 
 benchmark_python:
-	python3 python/benchmark.py --trials 3
+	python3 python/benchmark.py --trials 5
 
 clean:
 	rm -rf $(BUILD_DIR) *.png
