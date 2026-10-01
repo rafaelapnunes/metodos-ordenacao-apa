@@ -1,4 +1,6 @@
 CXX = g++
+# No Windows, use: make PYTHON=python <alvo>
+PYTHON ?= python3
 CXXFLAGS = -std=c++17 -O3 -Wall -Wextra
 
 CPP_DIR = cpp
@@ -27,13 +29,16 @@ benchmark_cpp: $(OBJS) $(CPP_DIR)/benchmark.cpp
 run_benchmark_cpp: benchmark_cpp
 	./$(BUILD_DIR)/benchmark
 
+install_python:
+	$(PYTHON) -m pip install -r requirements.txt
+
 test_python:
-	python3 python/test_suite.py
+	$(PYTHON) python/test_suite.py
 
 benchmark_python:
-	python3 python/benchmark.py --trials 5
+	$(PYTHON) python/benchmark.py --trials 10 --plot python/benchmark_results.png --csv python/benchmark_results.csv
 
 clean:
 	rm -rf $(BUILD_DIR) *.png
 
-.PHONY: all test_cpp benchmark_cpp run_benchmark_cpp test_python benchmark_python clean
+.PHONY: all install_python test_cpp benchmark_cpp run_benchmark_cpp test_python benchmark_python clean
