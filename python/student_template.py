@@ -14,7 +14,15 @@ import unittest
 
 def my_authorial_sort(arr: List[Any]) -> Tuple[List[Any], int, int]:
     """
-    IMPLEMENTE AQUI SEU ALGORITMO AUTORAL.
+    Mirror-Merge Sort (Ordenação por Fusão Espelhada).
+
+    Ordena a metade esquerda em um sentido e a direita no sentido oposto,
+    formando uma sequência bitônica que é fundida por dois ponteiros vindos
+    das extremidades (ver relatorio.md, Seções 1 e 2).
+
+    Complexidade: Θ(n log n) em todos os casos; comparações exatas
+    C(n) = n*ceil(lg n) - 2^ceil(lg n) + n e movimentações 2*C(n).
+    Espaço auxiliar: O(n). Não estável. Não in-place.
 
     Parâmetros:
         arr (List[Any]): Lista de entrada a ser ordenada.
@@ -65,8 +73,10 @@ def my_authorial_sort(arr: List[Any]) -> Tuple[List[Any], int, int]:
                     temp[k] = a[j]
                     j -= 1
             else:
-                # Ordenação decrescente: seleciona o maior das extremidades
-                # Para manter a estabilidade no decrescente, usamos >= (i sempre foi posicionado antes de j originalmente)
+                # Ordenação decrescente: seleciona o maior das extremidades.
+                # Obs.: nenhuma regra de desempate torna o método estável, pois o
+                # ponteiro que atravessa o pico lê a outra metade pelo lado oposto
+                # (ver relatorio.md, Seção 3.4).
                 if a[i] >= a[j]:
                     temp[k] = a[i]
                     i += 1
@@ -126,5 +136,7 @@ class TestStudentAuthorialSort(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    import sys
+    sys.stdout.reconfigure(encoding="utf-8")  # emojis no console do Windows (cp1252)
     print("🧪 Executando testes unitários no seu algoritmo autoral...")
     unittest.main(verbosity=2)
