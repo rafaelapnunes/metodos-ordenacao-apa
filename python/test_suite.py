@@ -4,6 +4,7 @@ Executa os cenários exigidos pelo enunciado do TP1.
 """
 
 import random
+import sys
 import unittest
 from typing import Callable, List, Tuple
 
@@ -15,6 +16,10 @@ from classical import (
     quick_sort,
     selection_sort,
 )
+from student_template import my_authorial_sort
+
+# Recursão do Quick Sort / Mirror-Merge em N = 10^4
+sys.setrecursionlimit(10000)
 
 
 class BaseSortMixin:
@@ -121,6 +126,87 @@ class TestQuickSort(unittest.TestCase, BaseSortMixin):
 class TestAuthorialSort(unittest.TestCase, BaseSortMixin):
     sort_fn = staticmethod(dpes_sort)
     name = "Authorial Sort (DPES)"
+
+
+class TestMirrorMergeSort(unittest.TestCase, BaseSortMixin):
+    sort_fn = staticmethod(my_authorial_sort)
+    name = "Mirror-Merge Sort (Autoral)"
+
+
+class TestMirrorMergeScaling(unittest.TestCase):
+    """
+    Cenários obrigatórios do enunciado (Seção 6) em todas as ordens de grandeza
+    N = 10, 10^2, 10^3, 10^4, mais verificações das propriedades deduzidas no relatório.
+    """
+    SIZES = (10, 100, 1000, 10000)
+
+    @staticmethod
+    def expected_comparisons(n: int) -> int:
+        """C(n) = n*ceil(lg n) - 2^ceil(lg n) + n (Seção 3 do relatório)."""
+        if n <= 1:
+            return 0
+        L = (n - 1).bit_length()  # ceil(log2 n)
+        return n * L - (1 << L) + n
+
+    def check(self, data: List):
+        res, comps, moves = my_authorial_sort(data)
+        self.assertEqual(sorted(data), res)
+        self.assertEqual(comps, self.expected_comparisons(len(data)))
+        self.assertEqual(moves, 2 * comps)
+
+    def test_random(self):
+        rng = random.Random(2026)
+        for n in self.SIZES:
+            with self.subTest(n=n):
+                self.check([rng.randint(-10 * n, 10 * n) for _ in range(n)])
+
+    def test_sorted(self):
+        for n in self.SIZES:
+            with self.subTest(n=n):
+                self.check(list(range(n)))
+
+    def test_reverse(self):
+        for n in self.SIZES:
+            with self.subTest(n=n):
+                self.check(list(range(n, 0, -1)))
+
+    def test_duplicates(self):
+        rng = random.Random(7)
+        for n in self.SIZES:
+            with self.subTest(n=n):
+                self.check([rng.choice([1, 2, 3, 5, 8]) for _ in range(n)])
+                self.check([0] * n)
+
+    def test_empty_and_single(self):
+        self.assertEqual(my_authorial_sort([]), ([], 0, 0))
+        self.assertEqual(my_authorial_sort([5]), ([5], 0, 0))
+
+    def test_all_sizes_up_to_300(self):
+        """Tamanhos ímpares e não potências de 2 (divisão desigual das metades)."""
+        rng = random.Random(1)
+        for n in range(2, 301):
+            with self.subTest(n=n):
+                self.check([rng.randint(0, n // 3) for _ in range(n)])
+
+    def test_input_is_not_mutated(self):
+        data = [3, 1, 2]
+        my_authorial_sort(data)
+        self.assertEqual(data, [3, 1, 2])
+
+    def test_not_stable_counterexample(self):
+        """Documenta o contraexemplo de instabilidade citado no relatório (Seção 3.4)."""
+        class Item:
+            def __init__(self, key, tag):
+                self.key, self.tag = key, tag
+            def __le__(self, other):
+                return self.key <= other.key
+            def __ge__(self, other):
+                return self.key >= other.key
+
+        data = [Item(1, "a"), Item(2, "b"), Item(1, "c"), Item(1, "d")]
+        res, _, _ = my_authorial_sort(data)
+        self.assertEqual([x.key for x in res], [1, 1, 1, 2])
+        self.assertEqual([x.tag for x in res], ["a", "d", "c", "b"])  # "d" antes de "c"
 
 
 if __name__ == "__main__":
