@@ -30,7 +30,7 @@ from classical import (
 )
 from student_template import my_authorial_sort
 
-# O Quick Sort recursivo e o Mirror-Merge chegam a profundidades maiores em N = 10^4.
+# O Quick Sort recursivo chega a profundidades maiores em N = 10^4 (o Mirror-Merge desce só ceil(lg n) ≈ 14 níveis).
 sys.setrecursionlimit(10000)
 
 QUADRATIC = ("Bubble Sort", "Selection Sort", "Insertion Sort")
@@ -167,6 +167,7 @@ def save_csv(results: dict, output_path: str):
 # + marcadores distintos para não depender só da cor.
 STYLE = {
     "Mirror-Merge Sort (Autoral)": ("#2a78d6", "o"),
+    "Mirror-Merge (sem atalho)": ("#8fbcef", "o"),
     "Merge Sort": ("#eb6834", "s"),
     "Quick Sort": ("#1baf7a", "^"),
     "Authorial (DPES)": ("#eda100", "D"),
@@ -193,7 +194,8 @@ def plot_benchmark_results(results: dict, output_path: str = "benchmark_results.
                     continue
                 color, marker = STYLE.get(alg_name, ("#52514e", "."))
                 lw = 2.6 if "Mirror" in alg_name else 1.6
-                ax.plot(sizes, values, marker=marker, markersize=6, linewidth=lw, color=color, label=alg_name)
+                ls = "--" if "sem atalho" in alg_name else "-"
+                ax.plot(sizes, values, marker=marker, markersize=6, linewidth=lw, linestyle=ls, color=color, label=alg_name)
             ax.set_xscale("log")
             ax.set_yscale("log")
             ax.set_title(f"{label} × N [{dist}]", fontsize=10)
@@ -230,6 +232,7 @@ def main():
         "Quick Sort": quick_sort,
         "Authorial (DPES)": dpes_sort,
         "Mirror-Merge Sort (Autoral)": my_authorial_sort,
+        "Mirror-Merge (sem atalho)": lambda arr: my_authorial_sort(arr, adaptive=False),
     }
 
     sizes = [n for n in (10, 100, 500, 1000, 2500, 5000, 10000) if n <= args.max_n]
