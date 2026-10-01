@@ -1,0 +1,216 @@
+distribuicao,algoritmo,n,tempo_medio_ms,tempo_desvio_ms,comparacoes,movimentacoes,comps_sobre_nlog2n
+random,Bubble Sort,10,0.0063,0.0020,43.0,48.8,1.2944
+random,Bubble Sort,100,0.5006,0.0331,4855.6,4862.8,7.3084
+random,Bubble Sort,500,12.0125,1.0074,124379.0,123669.2,27.7453
+random,Bubble Sort,1000,51.5986,1.8808,498672.2,502646.0,50.0384
+random,Bubble Sort,2500,502.0691,32.0536,3121460.8,3142042.8,110.6145
+random,Selection Sort,10,0.0050,0.0015,45.0,14.8,1.3546
+random,Selection Sort,100,0.2605,0.0097,4950.0,191.6,7.4505
+random,Selection Sort,500,6.0629,0.1982,124750.0,986.4,27.8280
+random,Selection Sort,1000,28.4522,4.3197,499500.0,1985.2,50.1215
+random,Selection Sort,2500,304.5880,58.5439,3123750.0,4983.6,110.6956
+random,Insertion Sort,10,0.0067,0.0065,30.8,42.4,0.9272
+random,Insertion Sort,100,0.2477,0.0119,2525.6,2629.4,3.8014
+random,Insertion Sort,500,6.6192,0.2938,62327.6,62832.6,13.9034
+random,Insertion Sort,1000,44.6435,2.0133,252314.4,253321.0,25.3181
+random,Insertion Sort,2500,322.5006,80.4553,1573514.8,1576019.4,55.7603
+random,Merge Sort,10,0.0151,0.0054,22.2,34.0,0.6683
+random,Merge Sort,100,0.1701,0.0057,542.8,672.0,0.8170
+random,Merge Sort,500,1.2215,0.2373,3848.8,4488.0,0.8586
+random,Merge Sort,1000,3.9948,0.8075,8702.4,9976.0,0.8732
+random,Merge Sort,2500,11.0774,1.3286,25129.6,28404.0,0.8905
+random,Merge Sort,5000,22.2195,0.8452,55212.6,61808.0,0.8987
+random,Merge Sort,10000,47.2896,2.4561,120481.0,133616.0,0.9067
+random,Quick Sort,10,0.0095,0.0037,53.6,23.2,1.6135
+random,Quick Sort,100,0.1153,0.0015,1004.0,370.4,1.5112
+random,Quick Sort,500,0.8862,0.1155,6513.2,2402.4,1.4529
+random,Quick Sort,1000,2.4953,0.2725,13810.6,5334.8,1.3858
+random,Quick Sort,2500,6.4815,0.2554,38771.0,14883.2,1.3739
+random,Quick Sort,5000,15.1821,1.3132,84363.2,32050.8,1.3731
+random,Quick Sort,10000,31.3632,0.6817,177355.0,68992.4,1.3347
+random,Authorial (DPES),10,0.0081,0.0025,30.8,42.4,0.9272
+random,Authorial (DPES),100,0.1415,0.0057,1038.4,624.6,1.5629
+random,Authorial (DPES),500,0.9321,0.0115,7998.4,3782.4,1.7842
+random,Authorial (DPES),1000,3.4128,0.5053,18084.0,8597.8,1.8146
+random,Authorial (DPES),2500,9.1561,0.4227,52848.8,23360.8,1.8728
+random,Authorial (DPES),5000,20.2122,0.9905,118209.6,49096.0,1.9240
+random,Authorial (DPES),10000,44.3362,1.0052,258136.4,108809.6,1.9427
+random,Mirror-Merge Sort (Autoral),10,0.0117,0.0030,34.0,68.0,1.0235
+random,Mirror-Merge Sort (Autoral),100,0.1724,0.0148,672.0,1344.0,1.0115
+random,Mirror-Merge Sort (Autoral),500,1.2672,0.2098,4488.0,8976.0,1.0011
+random,Mirror-Merge Sort (Autoral),1000,3.5150,0.1993,9976.0,19952.0,1.0010
+random,Mirror-Merge Sort (Autoral),2500,9.7732,0.0615,28404.0,56808.0,1.0065
+random,Mirror-Merge Sort (Autoral),5000,23.2653,2.4041,61808.0,123616.0,1.0060
+random,Mirror-Merge Sort (Autoral),10000,47.0584,1.3500,133616.0,267232.0,1.0056
+sorted,Bubble Sort,10,0.0016,0.0010,9.0,0.0,0.2709
+sorted,Bubble Sort,100,0.0055,0.0005,99.0,0.0,0.1490
+sorted,Bubble Sort,500,0.0390,0.0036,499.0,0.0,0.1113
+sorted,Bubble Sort,1000,0.0948,0.0049,999.0,0.0,0.1002
+sorted,Bubble Sort,2500,0.2504,0.0181,2499.0,0.0,0.0886
+sorted,Selection Sort,10,0.0040,0.0006,45.0,0.0,1.3546
+sorted,Selection Sort,100,0.2978,0.0072,4950.0,0.0,7.4505
+sorted,Selection Sort,500,9.2171,1.0966,124750.0,0.0,27.8280
+sorted,Selection Sort,1000,36.6334,2.5869,499500.0,0.0,50.1215
+sorted,Selection Sort,2500,239.8672,8.5776,3123750.0,0.0,110.6956
+sorted,Insertion Sort,10,0.0017,0.0005,9.0,18.0,0.2709
+sorted,Insertion Sort,100,0.0115,0.0003,99.0,198.0,0.1490
+sorted,Insertion Sort,500,0.1474,0.0094,499.0,998.0,0.1113
+sorted,Insertion Sort,1000,0.2095,0.0164,999.0,1998.0,0.1002
+sorted,Insertion Sort,2500,0.5835,0.0185,2499.0,4998.0,0.0886
+sorted,Merge Sort,10,0.0147,0.0041,15.0,34.0,0.4515
+sorted,Merge Sort,100,0.1772,0.0068,316.0,672.0,0.4756
+sorted,Merge Sort,500,1.2735,0.1296,2216.0,4488.0,0.4943
+sorted,Merge Sort,1000,3.2020,0.3868,4932.0,9976.0,0.4949
+sorted,Merge Sort,2500,7.8781,0.1753,13652.0,28404.0,0.4838
+sorted,Merge Sort,5000,18.1269,0.7283,29804.0,61808.0,0.4851
+sorted,Merge Sort,10000,38.0147,0.9497,64608.0,133616.0,0.4862
+sorted,Quick Sort,10,0.0073,0.0015,49.0,0.0,1.4750
+sorted,Quick Sort,100,0.0845,0.0024,795.0,0.0,1.1966
+sorted,Quick Sort,500,0.5865,0.0168,4773.0,0.0,1.0647
+sorted,Quick Sort,1000,1.4912,0.2735,10542.0,0.0,1.0578
+sorted,Quick Sort,2500,4.0856,0.1237,30797.0,0.0,1.0913
+sorted,Quick Sort,5000,9.4017,0.4062,66582.0,0.0,1.0837
+sorted,Quick Sort,10000,19.4406,0.7991,143151.0,0.0,1.0773
+sorted,Authorial (DPES),10,0.0037,0.0011,9.0,18.0,0.2709
+sorted,Authorial (DPES),100,0.0962,0.0007,751.0,182.0,1.1304
+sorted,Authorial (DPES),500,1.1760,0.2005,7013.0,838.0,1.5644
+sorted,Authorial (DPES),1000,2.0048,0.0669,14191.0,1838.0,1.4240
+sorted,Authorial (DPES),2500,6.6519,0.5542,43717.0,4514.0,1.5492
+sorted,Authorial (DPES),5000,18.0475,2.0961,103437.0,8542.0,1.6836
+sorted,Authorial (DPES),10000,30.3411,0.7567,208441.0,18542.0,1.5687
+sorted,Mirror-Merge Sort (Autoral),10,0.0105,0.0015,34.0,68.0,1.0235
+sorted,Mirror-Merge Sort (Autoral),100,0.1775,0.0049,672.0,1344.0,1.0115
+sorted,Mirror-Merge Sort (Autoral),500,1.4056,0.0520,4488.0,8976.0,1.0011
+sorted,Mirror-Merge Sort (Autoral),1000,3.2993,0.0818,9976.0,19952.0,1.0010
+sorted,Mirror-Merge Sort (Autoral),2500,9.6859,0.4290,28404.0,56808.0,1.0065
+sorted,Mirror-Merge Sort (Autoral),5000,21.4211,0.7387,61808.0,123616.0,1.0060
+sorted,Mirror-Merge Sort (Autoral),10000,52.5032,10.1377,133616.0,267232.0,1.0056
+reverse,Bubble Sort,10,0.0115,0.0016,45.0,90.0,1.3546
+reverse,Bubble Sort,100,1.2872,0.2286,4950.0,9900.0,7.4505
+reverse,Bubble Sort,500,24.8953,2.9728,124750.0,249500.0,27.8280
+reverse,Bubble Sort,1000,143.1410,37.8274,499500.0,999000.0,50.1215
+reverse,Bubble Sort,2500,648.5205,75.7434,3123750.0,6247500.0,110.6956
+reverse,Selection Sort,10,0.0063,0.0011,45.0,10.0,1.3546
+reverse,Selection Sort,100,0.5312,0.0697,4950.0,100.0,7.4505
+reverse,Selection Sort,500,13.2920,2.5364,124750.0,500.0,27.8280
+reverse,Selection Sort,1000,41.7108,2.9581,499500.0,1000.0,50.1215
+reverse,Selection Sort,2500,178.2840,22.1475,3123750.0,2500.0,110.6956
+reverse,Insertion Sort,10,0.0083,0.0010,45.0,63.0,1.3546
+reverse,Insertion Sort,100,0.8740,0.0284,4950.0,5148.0,7.4505
+reverse,Insertion Sort,500,27.9447,2.5022,124750.0,125748.0,27.8280
+reverse,Insertion Sort,1000,79.5161,1.5919,499500.0,501498.0,50.1215
+reverse,Insertion Sort,2500,611.9343,163.5143,3123750.0,3128748.0,110.6956
+reverse,Merge Sort,10,0.0199,0.0050,19.0,34.0,0.5720
+reverse,Merge Sort,100,0.2681,0.0166,356.0,672.0,0.5358
+reverse,Merge Sort,500,2.3691,0.5152,2272.0,4488.0,0.5068
+reverse,Merge Sort,1000,2.7913,0.0415,5044.0,9976.0,0.5061
+reverse,Merge Sort,2500,8.5480,1.5592,14752.0,28404.0,0.5228
+reverse,Merge Sort,5000,18.6686,1.6471,32004.0,61808.0,0.5209
+reverse,Merge Sort,10000,37.4264,1.3151,69008.0,133616.0,0.5193
+reverse,Quick Sort,10,0.0113,0.0023,55.0,14.0,1.6557
+reverse,Quick Sort,100,0.1316,0.0355,799.0,104.0,1.2026
+reverse,Quick Sort,500,0.8169,0.3197,4779.0,504.0,1.0661
+reverse,Quick Sort,1000,1.3801,0.0375,10549.0,1004.0,1.0585
+reverse,Quick Sort,2500,4.7802,0.4582,30811.0,2504.0,1.0918
+reverse,Quick Sort,5000,9.0227,0.0342,66597.0,5004.0,1.0840
+reverse,Quick Sort,10000,20.3829,0.8286,143167.0,10004.0,1.0774
+reverse,Authorial (DPES),10,0.0140,0.0016,45.0,63.0,1.3546
+reverse,Authorial (DPES),100,1.7107,3.4797,886.0,336.0,1.3336
+reverse,Authorial (DPES),500,1.3466,0.2318,7501.0,1347.0,1.6733
+reverse,Authorial (DPES),1000,2.2113,0.1102,15218.0,2892.0,1.5270
+reverse,Authorial (DPES),2500,6.6330,0.2646,46223.0,7049.0,1.6380
+reverse,Authorial (DPES),5000,15.7128,0.2385,108417.0,13551.0,1.7646
+reverse,Authorial (DPES),10000,30.4867,1.2060,218481.0,28619.0,1.6442
+reverse,Mirror-Merge Sort (Autoral),10,0.0143,0.0023,34.0,68.0,1.0235
+reverse,Mirror-Merge Sort (Autoral),100,0.3124,0.0572,672.0,1344.0,1.0115
+reverse,Mirror-Merge Sort (Autoral),500,1.4794,0.2279,4488.0,8976.0,1.0011
+reverse,Mirror-Merge Sort (Autoral),1000,3.3473,0.0887,9976.0,19952.0,1.0010
+reverse,Mirror-Merge Sort (Autoral),2500,9.7912,0.4418,28404.0,56808.0,1.0065
+reverse,Mirror-Merge Sort (Autoral),5000,20.8004,0.1341,61808.0,123616.0,1.0060
+reverse,Mirror-Merge Sort (Autoral),10000,45.9209,2.7691,133616.0,267232.0,1.0056
+duplicates,Bubble Sort,10,0.0055,0.0013,37.2,32.0,1.1198
+duplicates,Bubble Sort,100,0.5294,0.0280,4765.0,4153.6,7.1720
+duplicates,Bubble Sort,500,14.5956,0.8274,119064.0,99179.6,26.5596
+duplicates,Bubble Sort,1000,57.7419,1.7159,478406.6,400398.4,48.0049
+duplicates,Bubble Sort,2500,380.6616,26.4112,2994507.4,2458071.2,106.1157
+duplicates,Selection Sort,10,0.0053,0.0010,45.0,12.0,1.3546
+duplicates,Selection Sort,100,0.3358,0.0224,4950.0,154.4,7.4505
+duplicates,Selection Sort,500,9.3457,0.4913,124750.0,792.8,27.8280
+duplicates,Selection Sort,1000,35.4952,1.2607,499500.0,1604.8,50.1215
+duplicates,Selection Sort,2500,215.7992,37.1981,3123750.0,3959.2,110.6956
+duplicates,Insertion Sort,10,0.0036,0.0006,24.2,34.0,0.7285
+duplicates,Insertion Sort,100,0.2872,0.0257,2174.4,2274.8,3.2728
+duplicates,Insertion Sort,500,7.7094,0.6543,50087.2,50587.8,11.1730
+duplicates,Insertion Sort,1000,31.1838,1.2030,201196.8,202197.2,20.1888
+duplicates,Insertion Sort,2500,193.2230,2.6886,1231532.6,1234033.6,43.6415
+duplicates,Merge Sort,10,0.0165,0.0043,21.6,34.0,0.6502
+duplicates,Merge Sort,100,0.2083,0.0081,518.4,672.0,0.7803
+duplicates,Merge Sort,500,1.8351,0.1509,3606.0,4488.0,0.8044
+duplicates,Merge Sort,1000,3.2444,0.3248,8175.4,9976.0,0.8203
+duplicates,Merge Sort,2500,9.0192,0.7323,23252.8,28404.0,0.8240
+duplicates,Merge Sort,5000,18.5570,0.6043,51205.6,61808.0,0.8334
+duplicates,Merge Sort,10000,41.5026,1.6126,111566.2,133616.0,0.8396
+duplicates,Quick Sort,10,0.0114,0.0022,65.6,24.0,1.9748
+duplicates,Quick Sort,100,0.1363,0.0037,874.4,469.6,1.3161
+duplicates,Quick Sort,500,1.1952,0.2938,5561.6,3362.4,1.2406
+duplicates,Quick Sort,1000,2.1725,0.1068,12020.0,7632.4,1.2061
+duplicates,Quick Sort,2500,6.2114,0.1026,33651.8,22610.0,1.1925
+duplicates,Quick Sort,5000,14.3099,2.2361,72585.6,49776.8,1.1814
+duplicates,Quick Sort,10000,28.5185,0.3263,153112.4,111190.8,1.1523
+duplicates,Authorial (DPES),10,0.0072,0.0013,24.2,34.0,0.7285
+duplicates,Authorial (DPES),100,0.0914,0.0042,749.4,229.6,1.1280
+duplicates,Authorial (DPES),500,0.5021,0.0189,3823.6,1078.8,0.8529
+duplicates,Authorial (DPES),1000,1.0868,0.0413,7679.6,2175.6,0.7706
+duplicates,Authorial (DPES),2500,2.6010,0.0936,19155.0,5459.6,0.6788
+duplicates,Authorial (DPES),5000,6.2139,1.0978,38367.6,10914.8,0.6245
+duplicates,Authorial (DPES),10000,10.8581,0.5465,76850.4,21869.2,0.5784
+duplicates,Mirror-Merge Sort (Autoral),10,0.0116,0.0014,34.0,68.0,1.0235
+duplicates,Mirror-Merge Sort (Autoral),100,0.1779,0.0043,672.0,1344.0,1.0115
+duplicates,Mirror-Merge Sort (Autoral),500,1.3584,0.0580,4488.0,8976.0,1.0011
+duplicates,Mirror-Merge Sort (Autoral),1000,3.2307,0.0428,9976.0,19952.0,1.0010
+duplicates,Mirror-Merge Sort (Autoral),2500,9.0270,0.0700,28404.0,56808.0,1.0065
+duplicates,Mirror-Merge Sort (Autoral),5000,20.0185,0.6382,61808.0,123616.0,1.0060
+duplicates,Mirror-Merge Sort (Autoral),10000,41.9980,0.5309,133616.0,267232.0,1.0056
+almost_sorted,Bubble Sort,10,0.0039,0.0015,33.2,15.6,0.9994
+almost_sorted,Bubble Sort,100,0.3479,0.0209,4470.0,796.4,6.7280
+almost_sorted,Bubble Sort,500,9.5449,0.4476,120743.0,15326.8,26.9342
+almost_sorted,Bubble Sort,1000,47.0167,24.4307,488163.4,65107.2,48.9839
+almost_sorted,Bubble Sort,2500,276.9632,29.5415,3090161.2,379581.6,109.5053
+almost_sorted,Selection Sort,10,0.0040,0.0008,45.0,2.0,1.3546
+almost_sorted,Selection Sort,100,0.3046,0.0091,4950.0,10.0,7.4505
+almost_sorted,Selection Sort,500,8.2549,0.2277,124750.0,50.0,27.8280
+almost_sorted,Selection Sort,1000,24.7507,0.5432,499500.0,100.0,50.1215
+almost_sorted,Selection Sort,2500,231.5853,12.2063,3123750.0,249.6,110.6956
+almost_sorted,Insertion Sort,10,0.0027,0.0007,16.4,25.8,0.4937
+almost_sorted,Insertion Sort,100,0.0620,0.0062,496.8,596.2,0.7478
+almost_sorted,Insertion Sort,500,1.2714,0.1013,8162.4,8661.4,1.8208
+almost_sorted,Insertion Sort,1000,3.7565,0.5992,33552.2,34551.6,3.3667
+almost_sorted,Insertion Sort,2500,31.7626,2.6500,192289.4,194788.8,6.8141
+almost_sorted,Merge Sort,10,0.0151,0.0040,19.6,34.0,0.5900
+almost_sorted,Merge Sort,100,0.2134,0.0202,416.4,672.0,0.6267
+almost_sorted,Merge Sort,500,1.3393,0.0482,3238.8,4488.0,0.7225
+almost_sorted,Merge Sort,1000,2.2378,0.1115,7530.8,9976.0,0.7557
+almost_sorted,Merge Sort,2500,9.2581,0.0809,21929.2,28404.0,0.7771
+almost_sorted,Merge Sort,5000,20.2219,0.4343,48912.0,61808.0,0.7961
+almost_sorted,Merge Sort,10000,42.9754,0.7468,107973.2,133616.0,0.8126
+almost_sorted,Quick Sort,10,0.0076,0.0015,53.2,5.2,1.6015
+almost_sorted,Quick Sort,100,0.0967,0.0021,818.0,29.2,1.2312
+almost_sorted,Quick Sort,500,0.6441,0.0184,4998.2,174.0,1.1149
+almost_sorted,Quick Sort,1000,1.0646,0.0612,11737.2,524.8,1.1777
+almost_sorted,Quick Sort,2500,4.7917,0.2123,33493.4,1498.4,1.1869
+almost_sorted,Quick Sort,5000,9.6660,0.3174,71446.2,3199.6,1.1629
+almost_sorted,Quick Sort,10000,20.4471,0.6674,151848.2,6524.4,1.1428
+almost_sorted,Authorial (DPES),10,0.0076,0.0049,16.4,25.8,0.4937
+almost_sorted,Authorial (DPES),100,0.1073,0.0099,784.4,264.4,1.1806
+almost_sorted,Authorial (DPES),500,1.1437,0.0494,7378.6,1971.6,1.6459
+almost_sorted,Authorial (DPES),1000,1.7444,0.0720,15863.2,5300.2,1.5918
+almost_sorted,Authorial (DPES),2500,8.0239,0.3134,48450.4,15921.4,1.7169
+almost_sorted,Authorial (DPES),5000,18.2718,1.1226,110918.6,32666.8,1.8054
+almost_sorted,Authorial (DPES),10000,42.8214,8.2008,236700.6,82037.8,1.7813
+almost_sorted,Mirror-Merge Sort (Autoral),10,0.0138,0.0068,34.0,68.0,1.0235
+almost_sorted,Mirror-Merge Sort (Autoral),100,0.1833,0.0053,672.0,1344.0,1.0115
+almost_sorted,Mirror-Merge Sort (Autoral),500,1.4119,0.0304,4488.0,8976.0,1.0011
+almost_sorted,Mirror-Merge Sort (Autoral),1000,2.2561,0.0671,9976.0,19952.0,1.0010
+almost_sorted,Mirror-Merge Sort (Autoral),2500,9.7334,0.2047,28404.0,56808.0,1.0065
+almost_sorted,Mirror-Merge Sort (Autoral),5000,21.4577,0.7828,61808.0,123616.0,1.0060
+almost_sorted,Mirror-Merge Sort (Autoral),10000,45.5198,0.3773,133616.0,267232.0,1.0056
