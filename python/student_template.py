@@ -12,7 +12,7 @@ from typing import Any, List, Tuple
 import unittest
 
 
-def my_authorial_sort(arr: List[Any]) -> Tuple[List[Any], int, int]:
+def my_authorial_sort(arr: List[Any], adaptive: bool = True) -> Tuple[List[Any], int, int]:
     """
     Mirror-Merge Sort (Ordenação por Fusão Espelhada).
 
@@ -20,12 +20,19 @@ def my_authorial_sort(arr: List[Any]) -> Tuple[List[Any], int, int]:
     formando uma sequência bitônica que é fundida por dois ponteiros vindos
     das extremidades (ver relatorio.md, Seções 1 e 2).
 
-    Complexidade: Θ(n log n) em todos os casos; comparações exatas
-    C(n) = n*ceil(lg n) - 2^ceil(lg n) + n e movimentações 2*C(n).
-    Espaço auxiliar: O(n). Não estável. Não in-place.
+    Antes de fundir, testa se as metades já estão separadas (todos os elementos
+    de uma metade não passam dos da outra). Nesse caso a saída é uma metade
+    seguida da outra invertida, sem fundir (atalho adaptativo, Seção 1.4).
+
+    Comparações: entre n - 1 (melhor caso) e Cmax(n) (pior caso), ver Seção 3.
+    Sem o atalho (adaptive=False): exatamente n*ceil(lg n) - 2^ceil(lg n) + 1.
+    Movimentações: sempre 2*(n*ceil(lg n) - 2^ceil(lg n) + n).
+    Tempo: Θ(n log n) em todos os casos. Espaço auxiliar: O(n).
+    Não estável. Não in-place.
 
     Parâmetros:
         arr (List[Any]): Lista de entrada a ser ordenada.
+        adaptive (bool): Usa o atalho das metades separadas (padrão: True).
 
     Retorno:
         Tuple[List[Any], int, int]:
@@ -56,40 +63,82 @@ def my_authorial_sort(arr: List[Any]) -> Tuple[List[Any], int, int]:
         mirror_merge_sort(low, mid, ascending)
         mirror_merge_sort(mid + 1, high, not ascending)
 
+        # Atalho adaptativo (só para m >= 3; com m = 2 a fusão já usa 1 comparação).
+        # Na montanha, a[mid] é o máximo da esquerda e a[high] o mínimo da direita;
+        # no vale, a[mid] é o mínimo da esquerda e a[high] o máximo da direita.
+        if adaptive and high - low >= 2:
+            comps += 1
+            if (a[mid] <= a[high]) if ascending else (a[mid] >= a[high]):
+                # A esquerda vem primeiro: esquerda, depois a direita invertida.
+                k = low
+                for idx in range(low, mid + 1):
+                    temp[k] = a[idx]
+                    k += 1
+                for idx in range(high, mid, -1):
+                    temp[k] = a[idx]
+                    k += 1
+                moves += high - low + 1
+                copy_back(low, high)
+                return
+            comps += 1
+            # Empate fica com a esquerda (teste estrito), para não inverter iguais à toa.
+            if not (a[low] <= a[mid + 1]) if ascending else not (a[low] >= a[mid + 1]):
+                # A direita vem primeiro: direita invertida, depois a esquerda.
+                k = low
+                for idx in range(high, mid, -1):
+                    temp[k] = a[idx]
+                    k += 1
+                for idx in range(low, mid + 1):
+                    temp[k] = a[idx]
+                    k += 1
+                moves += high - low + 1
+                copy_back(low, high)
+                return
+
         i = low
         j = high
         k = low
 
         # Fusão bitônica: os ponteiros começam nas extremidades e caminham para o centro.
         # Não é necessário verificar os limites (i <= mid ou j > mid), economizando comparações de índice.
-        while i <= j:
-            comps += 1
-            if ascending:
-                # Ordenação crescente: seleciona o menor das extremidades
+        # O sentido é testado uma vez, fora do laço, e cada laço só testa i < j.
+        # Obs.: nenhuma regra de desempate torna o método estável, pois o ponteiro que
+        # atravessa o pico lê a outra metade pelo lado oposto (ver relatorio.md, Seção 3.4).
+        if ascending:
+            # Montanha: seleciona o menor das extremidades
+            while i < j:
+                comps += 1
                 if a[i] <= a[j]:
                     temp[k] = a[i]
                     i += 1
                 else:
                     temp[k] = a[j]
                     j -= 1
-            else:
-                # Ordenação decrescente: seleciona o maior das extremidades.
-                # Obs.: nenhuma regra de desempate torna o método estável, pois o
-                # ponteiro que atravessa o pico lê a outra metade pelo lado oposto
-                # (ver relatorio.md, Seção 3.4).
+                k += 1
+        else:
+            # Vale: seleciona o maior das extremidades
+            while i < j:
+                comps += 1
                 if a[i] >= a[j]:
                     temp[k] = a[i]
                     i += 1
                 else:
                     temp[k] = a[j]
                     j -= 1
-            moves += 1
-            k += 1
+                k += 1
 
-        # Copia de volta do array temporário para o array original
+        # Resta um único elemento (i == j): é o maior (montanha) ou o menor (vale)
+        # do segmento e vai para a última posição sem precisar de comparação.
+        temp[k] = a[i]
+        moves += high - low + 1
+        copy_back(low, high)
+
+    def copy_back(low: int, high: int) -> None:
+        """Copia de volta do array temporário para o array original."""
+        nonlocal moves
         for idx in range(low, high + 1):
             a[idx] = temp[idx]
-            moves += 1
+        moves += high - low + 1
 
     mirror_merge_sort(0, n - 1, True)
 
