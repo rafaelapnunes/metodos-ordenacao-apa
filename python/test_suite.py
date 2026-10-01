@@ -181,32 +181,57 @@ class TestMirrorMergeScaling(unittest.TestCase):
         self.assertEqual(my_authorial_sort([]), ([], 0, 0))
         self.assertEqual(my_authorial_sort([5]), ([5], 0, 0))
 
-    def test_all_sizes_up_to_300(self):
-        """Tamanhos ímpares e não potências de 2 (divisão desigual das metades)."""
+    def test_all_sizes_up_to_1024(self):
+        """Todo N de 1 a 1024: tamanhos ímpares, potências de 2 e divisões desiguais."""
         rng = random.Random(1)
-        for n in range(2, 301):
+        for n in range(1, 1025):
             with self.subTest(n=n):
                 self.check([rng.randint(0, n // 3) for _ in range(n)])
+
+    def test_closed_form_solves_recurrence(self):
+        """A fórmula fechada satisfaz C(n) = C(ceil(n/2)) + C(floor(n/2)) + n para todo N até 10^4."""
+        C = [0, 0]
+        for n in range(2, 10001):
+            C.append(C[(n + 1) // 2] + C[n // 2] + n)
+        for n in range(1, 10001):
+            with self.subTest(n=n):
+                self.assertEqual(C[n], self.expected_comparisons(n))
 
     def test_input_is_not_mutated(self):
         data = [3, 1, 2]
         my_authorial_sort(data)
         self.assertEqual(data, [3, 1, 2])
 
+    class Item:
+        """Elemento comparado só pela chave; a etiqueta registra a posição original."""
+        def __init__(self, key, tag):
+            self.key, self.tag = key, tag
+        def __le__(self, other):
+            return self.key <= other.key
+        def __ge__(self, other):
+            return self.key >= other.key
+
     def test_not_stable_counterexample(self):
         """Documenta o contraexemplo de instabilidade citado no relatório (Seção 3.4)."""
-        class Item:
-            def __init__(self, key, tag):
-                self.key, self.tag = key, tag
-            def __le__(self, other):
-                return self.key <= other.key
-            def __ge__(self, other):
-                return self.key >= other.key
-
+        Item = self.Item
         data = [Item(1, "a"), Item(2, "b"), Item(1, "c"), Item(1, "d")]
         res, _, _ = my_authorial_sort(data)
         self.assertEqual([x.key for x in res], [1, 1, 1, 2])
         self.assertEqual([x.tag for x in res], ["a", "d", "c", "b"])  # "d" antes de "c"
+
+    def test_instability_frequency(self):
+        """Frequência de violações de estabilidade citada no relatório (Seção 3.4), semente fixa."""
+        rng = random.Random(2026)
+        violations = 0
+        for _ in range(200):
+            n = rng.randint(2, 40)
+            data = [self.Item(rng.randint(0, 3), i) for i in range(n)]
+            res, _, _ = my_authorial_sort(data)
+            self.assertEqual([x.key for x in res], sorted(x.key for x in data))
+            stable_order = [x.tag for x in sorted(data, key=lambda x: x.key)]
+            if [x.tag for x in res] != stable_order:
+                violations += 1
+        self.assertEqual(violations, 163)
 
 
 if __name__ == "__main__":
