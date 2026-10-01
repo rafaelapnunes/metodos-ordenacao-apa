@@ -10,3 +10,6 @@ __pycache__/
 *.so
 *.out
 *.app
+
+# Saída de compilação do Makefile
+build/
