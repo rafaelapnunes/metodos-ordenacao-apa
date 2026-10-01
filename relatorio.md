@@ -1,6 +1,7 @@
 # Relatório Técnico: Mirror-Merge Sort (Ordenação por Fusão Espelhada)
 
 **Trabalho Prático 1 (TP1) de Análise e Projetos de Algoritmos (APA)**
+
 **Autora:** Rafaela Pacheco
 
 > **Natureza do método (declaração de originalidade).** O Mirror-Merge Sort **não é um algoritmo inédito**: é uma **adaptação declarada** que combina duas técnicas publicadas: (i) a fusão bitônica pelas extremidades, descrita por Sedgewick; e (ii) a alternância de direção entre subproblemas, do Bitonic Sort de Batcher. A Seção 1.3 identifica as fontes e a Seção 4.2 descreve as modificações estruturais e compara diretamente com elas.
@@ -95,6 +96,7 @@ Vetor inicial: `[8, 3, 5, 2]` (crescente)
 | 4 | 1 (8) | 1 (8) | 8 ≤ 8? sim | pega A[i], `i++` | [2, 3, 5, 8] |
 
 `i = 2 > j = 1`: fim da fusão. Vetor ordenado: `[2, 3, 5, 8]`.
+
 Total de comparações: 1 + 1 + 4 = **6**. Isso confere com a fórmula da Seção 3.1: C(4) = 4·2 − 4 + 4 = 6.
 
 ### 2.3 Invariantes e prova de corretude
@@ -102,9 +104,11 @@ Total de comparações: 1 + 1 + 4 = **6**. Isso confere com a fórmula da Seçã
 **Definição.** Um segmento `A[i..j]` é uma **montanha** se existe `p` com `i−1 ≤ p ≤ j` tal que `A[i..p]` é não-decrescente e `A[p+1..j]` é não-crescente. É um **vale** se vale o simétrico (desce até `p` e depois sobe).
 
 **Lema 1 (extremos nas pontas).** Se `A[i..j]` (não vazio) é uma montanha, então `min A[i..j] = min(A[i], A[j])`. Se é um vale, `max A[i..j] = max(A[i], A[j])`.
+
 *Prova.* Numa montanha, o menor elemento da parte que sobe é `A[i]` e o menor da parte que desce é `A[j]`. Logo o mínimo global é o menor dos dois. O caso do vale é simétrico. ∎
 
 **Lema 2 (fechamento).** Remover `A[i]` ou `A[j]` de uma montanha (ou vale) produz outra montanha (ou vale), possivelmente vazia.
+
 *Prova.* Retirar o primeiro elemento de uma sequência que sobe e depois desce mantém o formato (se `p = i−1`, o que resta só desce). O mesmo vale para o último elemento. ∎
 
 **Invariante de laço da fusão (caso crescente).** No início de cada iteração do `enquanto i <= j`:
@@ -144,7 +148,7 @@ $$C(n) = n\lceil \log_2 n\rceil - 2^{\lceil \log_2 n\rceil} + n.$$
 
 *Justificativa.* A recorrência do pior caso do Merge Sort clássico, $W(n) = W(\lceil n/2\rceil) + W(\lfloor n/2\rfloor) + (n-1)$, tem a solução conhecida $W(n) = nL - 2^L + 1$ (Knuth, *TAOCP* vol. 3, §5.2.4). Temos $C(n) - W(n) = $ (número de fusões) $\cdot 1 = n - 1$, porque a árvore de recursão tem $n$ folhas e, sendo binária, $n-1$ nós internos, cada um contribuindo com 1 comparação a mais. Logo $C(n) = nL - 2^L + 1 + (n-1)$. ∎
 
-*Verificação empírica:* a fórmula foi conferida para **todo** $n$ de 1 a 2999 com entradas aleatórias, ordenadas e reversas, e está automatizada em `test_suite.py` (`TestMirrorMergeScaling`). Exemplos: $C(8)=24$, $C(64)=384$, $C(1024)=10240$.
+*Verificação empírica:* em `test_suite.py` (`TestMirrorMergeScaling`), a contagem da implementação é comparada com a fórmula para **todo** $n$ de 1 a 1024 e para $n \in \{10, 10^2, 10^3, 10^4\}$ nas entradas aleatória, ordenada, reversa e com repetições; além disso, `test_closed_form_solves_recurrence` confirma que a fórmula fechada satisfaz a recorrência para todo $n$ até $10^4$. Exemplos: $C(8)=24$, $C(64)=384$, $C(1024)=10240$.
 
 Como $n\lceil\log_2 n\rceil - 2^L + n$ está entre $n\log_2 n$ e $n\log_2 n + n$, temos:
 
@@ -185,7 +189,7 @@ também independente da entrada, e também verificado em `test_suite.py`.
    - pega `2_b`.
 4. Saída: `1ₐ, 1_d, 1_c, 2_b`. O `1_d` passou à frente do `1_c`, invertendo a ordem relativa original.
 
-(Esse contraexemplo é um teste automatizado: `test_not_stable_counterexample`.) Em 200 vetores aleatórios de tamanho 2 a 40 com chaves em {0..3}, a ordem relativa dos iguais foi violada em 175.
+(Esse contraexemplo é um teste automatizado: `test_not_stable_counterexample`.) Em 200 vetores aleatórios de tamanho 2 a 40 com chaves em {0..3} (semente 2026, teste `test_instability_frequency`), a ordem relativa dos iguais foi violada em 163.
 
 **Por que a instabilidade é estrutural (e não um detalhe do `>=`).** Há duas causas independentes:
 
@@ -248,11 +252,11 @@ Ou seja, a mesma propriedade que elimina os testes de fronteira (poder atravessa
 
 ### 5.1 Metodologia
 
-- **Ambiente:** Python 3.13.9, Windows 11, execução em um único processo. Reproduzível com `make benchmark_python` ou `python python/benchmark.py --trials 5`.
+- **Ambiente:** Python 3.13.9, Windows 11, Intel Core i7-1165G7 (2,8 GHz), 8 GB de RAM, execução em um único processo. Reproduzível com `make benchmark_python` ou com o comando indicado no `README.md`; os dados são gerados com semente fixa (`--seed 42`).
 - **Tamanhos:** N ∈ {10, 100, 500, 1000, 2500, 5000, 10000}. Os algoritmos $\Theta(n^2)$ (Bubble, Selection, Insertion) param em N = 2500, porque em Python levam minutos por medição a partir daí.
 - **Cenários:** aleatório uniforme, já ordenado, estritamente reverso, com muitas repetições (5 valores distintos) e quase ordenado (~5% de trocas).
-- **Repetições:** 5 vetores independentes por (cenário, N), usados igualmente por todos os algoritmos. O tempo reportado é média ± desvio-padrão. Toda saída é conferida contra `sorted()`.
-- **Artefatos:** `python/benchmark_results.png` (tempo, comparações e movimentações × N, em escala log-log), `python/benchmark_results.csv` (todos os números) e `python/benchmark_output.md` (tabelas de tempo).
+- **Repetições:** 10 vetores independentes por (cenário, N). Em cada repetição, todos os algoritmos ordenam o mesmo vetor, em ordem sorteada, para que oscilações de carga e temperatura da máquina afetem todos igualmente; o coletor de lixo do Python fica desligado durante cada medição (como no módulo `timeit`). O tempo reportado é a **mediana** ± desvio-padrão, porque a mediana é menos sensível a medições isoladas fora da curva. Toda saída é conferida contra `sorted()`.
+- **Artefatos:** `python/benchmark_results.png` (tempo, comparações e movimentações × N, em escala log-log), `python/benchmark_results.csv` (todos os números, incluindo média e mediana) e `python/benchmark_output.md` (tabelas de tempo).
 
 ![Resultados do benchmark](python/benchmark_results.png)
 
@@ -260,11 +264,11 @@ Ou seja, a mesma propriedade que elimina os testes de fronteira (poder atravessa
 
 | Cenário | N | Mirror-Merge | Merge Sort | Quick Sort | Insertion Sort |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| Aleatório | 1 000 | 9 976 | 8 702 | 13 811 | 252 314 |
-| Aleatório | 10 000 | 133 616 | 120 481 | 177 355 | não medido |
+| Aleatório | 1 000 | 9 976 | 8 708 | 14 117 | 251 710 |
+| Aleatório | 10 000 | 133 616 | 120 424 | 176 529 | não medido |
 | Ordenado | 10 000 | 133 616 | 64 608 | 143 151 | (999 em N = 10³) |
 | Reverso | 10 000 | 133 616 | 69 008 | 143 167 | não medido |
-| Repetidos | 10 000 | 133 616 | 111 566 | 153 112 | não medido |
+| Repetidos | 10 000 | 133 616 | 111 417 | 153 389 | não medido |
 
 - O Mirror-Merge produz **exatamente** o mesmo número em todos os cenários, e ele coincide com $C(n)$: $C(1000) = 1000\cdot10 - 1024 + 1000 = 9976$ e $C(10000) = 10000\cdot14 - 16384 + 10000 = 133616$. Isso confirma empiricamente a Seção 3.1, inclusive que melhor, pior e caso médio são iguais.
 - No caso aleatório, o Mirror-Merge faz ≈ 11% mais comparações que o Merge clássico. Em vetores ordenados ou reversos, faz ≈ 2× mais, porque o clássico esgota uma metade depois de ≈ m/2 comparações e copia o resto sem comparar. Isso confirma a observação crítica da Seção 3.1.
@@ -274,7 +278,7 @@ Ou seja, a mesma propriedade que elimina os testes de fronteira (poder atravessa
 
 | Cenário | N | Mirror-Merge | Merge Sort | Quick Sort | Insertion Sort |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| Aleatório | 10 000 | 267 232 | 133 616 | 68 992 | não medido |
+| Aleatório | 10 000 | 267 232 | 133 616 | 69 180 | não medido |
 | Ordenado | 10 000 | 267 232 | 133 616 | 0 | (1 998 em N = 10³) |
 | Reverso | 10 000 | 267 232 | 133 616 | 10 004 | não medido |
 
@@ -282,21 +286,22 @@ Ou seja, a mesma propriedade que elimina os testes de fronteira (poder atravessa
 - **Atenção à comparação com o Merge Sort do pacote:** a implementação de `classical.py` conta só os `append` na lista resultante (1 por elemento por nível). As cópias feitas pelo fatiamento `lst[:mid]` não entram na contagem. O Mirror-Merge conta as duas escritas (em `Temp` e de volta em `A`). Com o mesmo critério, os dois fariam o mesmo número de movimentações. O fator 2 no gráfico é **artefato de instrumentação**, não diferença algorítmica.
 - O Quick Sort com partição de Hoare move muito menos, e zero em vetor já ordenado, porque só troca elementos fora do lugar.
 
-### 5.4 Tempo de execução (ms, média ± desvio, 5 repetições)
+### 5.4 Tempo de execução (ms, mediana ± desvio-padrão, 10 repetições)
 
 | Cenário | N | Mirror-Merge | Merge Sort | Quick Sort | Insertion Sort |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| Aleatório | 1 000 | 3.52 ± 0.20 | 3.99 ± 0.81 | 2.50 ± 0.27 | 44.64 ± 2.01 |
-| Aleatório | 10 000 | 47.06 ± 1.35 | 47.29 ± 2.46 | 31.36 ± 0.68 | não medido |
-| Ordenado | 10 000 | 52.50 ± 10.14 | 38.01 ± 0.95 | 19.44 ± 0.80 | (0.21 em N = 10³) |
-| Reverso | 10 000 | 45.92 ± 2.77 | 37.43 ± 1.32 | 20.38 ± 0.83 | não medido |
-| Repetidos | 10 000 | 42.00 ± 0.53 | 41.50 ± 1.61 | 28.52 ± 0.33 | 31.18 (N = 10³) |
+| Aleatório | 1 000 | 2.36 ± 0.99 | 2.40 ± 0.65 | 1.61 ± 0.49 | 28.07 ± 7.95 |
+| Aleatório | 10 000 | 50.88 ± 11.37 | 50.23 ± 11.53 | 34.28 ± 7.84 | não medido |
+| Ordenado | 10 000 | 48.80 ± 19.86 | 38.26 ± 12.52 | 19.16 ± 8.21 | (0.23 em N = 10³) |
+| Reverso | 10 000 | 47.11 ± 1.57 | 37.20 ± 1.10 | 19.93 ± 0.44 | não medido |
+| Repetidos | 10 000 | 43.08 ± 7.47 | 39.96 ± 6.42 | 28.54 ± 4.53 | 31.63 (N = 10³) |
+| Quase ordenado | 10 000 | 46.77 ± 4.05 | 44.02 ± 1.97 | 21.32 ± 0.76 | não medido |
 
 **Análise crítica.**
-1. **A curva de crescimento confirma $\Theta(n\log n)$.** No gráfico log-log, o Mirror-Merge acompanha paralelamente o Merge e o Quick Sort. Os algoritmos $\Theta(n^2)$ têm inclinação visivelmente maior (≈ 2). De N = 10³ para 10⁴ (10×), o tempo do Mirror-Merge cresceu ≈ 13×, compatível com $10 \cdot \log(10^4)/\log(10^3) \approx 13{,}3$.
-2. **No caso aleatório, empata com o Merge clássico** (diferença menor que o desvio-padrão). Nos cenários ordenado e reverso, é **mais lento**, porque o clássico faz metade das comparações (Seção 5.2). A redução de testes de fronteira **não aparece como ganho mensurável em Python**, onde cada iteração custa dezenas de instruções de bytecode e o desvio extra é irrelevante (ver Seção 6, itens 3 e 5).
+1. **A curva de crescimento é a de um algoritmo $\Theta(n\log n)$, não $\Theta(n^2)$.** No gráfico log-log, o Mirror-Merge acompanha paralelamente o Merge e o Quick Sort, enquanto os algoritmos $\Theta(n^2)$ têm inclinação visivelmente maior (≈ 2). De N = 10³ para 10⁴ (10×), a teoria prevê um aumento de $10 \cdot \log(10^4)/\log(10^3) \approx 13{,}3\times$; o tempo medido cresceu ≈ 21,6× no Mirror-Merge, mas também ≈ 20,9× no Merge e ≈ 21,3× no Quick Sort. Como o excesso é o mesmo para os três, ele não vem do algoritmo, e sim do ambiente: vetores maiores deixam de caber nas memórias cache e aumentam o custo de gerenciar objetos no interpretador. Já as **contagens** de operações (5.2 e 5.3) seguem a previsão teórica exatamente.
+2. **No caso aleatório, empata com o Merge clássico** (50,9 contra 50,2 ms, diferença muito menor que o desvio-padrão). Nos cenários ordenado e reverso, é **cerca de 27% mais lento**, porque o clássico faz metade das comparações (Seção 5.2). A redução de testes de fronteira **não aparece como ganho mensurável em Python**, onde cada iteração custa dezenas de instruções de bytecode e o desvio extra é irrelevante (ver Seção 6, itens 3 e 5).
 3. **O Quick Sort é o mais rápido** em todos os cenários: é in-place, move pouco e, com mediana de três, não degrada em entradas ordenadas ou reversas.
-4. **Estabilidade de desempenho:** o tempo do Mirror-Merge praticamente não varia entre os cenários (42–52 ms em N = 10⁴). Isso é coerente com o custo independente da entrada. A variação que resta vem de ruído de medição (desvio de 10 ms no cenário ordenado) e de efeitos de cache e do interpretador.
+4. **Estabilidade de desempenho:** o tempo do Mirror-Merge varia pouco entre os cenários (de 43 a 51 ms em N = 10⁴), o que é coerente com o custo independente da entrada. A variação restante é da mesma ordem do ruído de medição: os desvios-padrão chegaram a 20 ms no cenário ordenado, para todos os algoritmos, o que indica oscilação da máquina durante a execução. Por isso o relatório usa a mediana e as repetições intercaladas (Seção 5.1).
 5. **Validade:** a implementação clássica do Merge Sort usa fatiamento e `append` (listas novas a cada chamada), enquanto o Mirror-Merge usa índices sobre um buffer único. As diferenças de tempo misturam, portanto, efeito algorítmico e estilo de implementação. As **contagens** (5.2 e 5.3) são a evidência mais confiável.
 
 ---
@@ -331,8 +336,8 @@ Ou seja, a mesma propriedade que elimina os testes de fronteira (poder atravessa
 - **Como foi utilizada:**
   1. **Auditoria**: comparou o projeto com o checklist do enunciado e apontou (a) a afirmação incorreta de estabilidade, com contraexemplo, (b) a ausência de atribuição às técnicas de Sedgewick e Batcher, e (c) a afirmação incorreta de que o método faz menos comparações.
   2. **Testes**: adicionou o Mirror-Merge à suíte `test_suite.py` (classes `TestMirrorMergeSort` e `TestMirrorMergeScaling`, com N = 10 a 10⁴ nos cenários obrigatórios, verificação da fórmula exata de comparações e movimentações e o contraexemplo de instabilidade).
-  3. **Benchmark**: estendeu `benchmark.py` até N = 10⁴, com 5 repetições, desvio-padrão, gráfico de movimentações × N, eixos log-log e exportação CSV.
+  3. **Benchmark**: estendeu `benchmark.py` até N = 10⁴, com 10 repetições, desvio-padrão, gráfico de movimentações × N, eixos log-log, exportação CSV e Markdown e semente configurável; atualizou o README e o Makefile e adicionou `requirements.txt`.
   4. **Relatório**: redigiu as Seções 2.3 (invariantes), 3 (dedução da recorrência e fórmula fechada, estabilidade), 4.2 (comparação com as técnicas de origem), 5 e 6, a partir das medições.
   - O algoritmo (`my_authorial_sort` em `student_template.py`) **não foi alterado** pelo Claude.
 - **Modificações realizadas:** *(a preencher pela autora: o que foi reescrito, cortado ou corrigido no texto sugerido.)*
-- **Como o resultado foi validado:** a fórmula $C(n)$ foi checada por execução para todo n de 1 a 2999 e está automatizada nos testes; o contraexemplo de instabilidade é um teste automatizado; a suíte completa (78 testes) passa. *(a autora deve acrescentar sua própria verificação, por exemplo refazer a dedução da Seção 3.1 à mão.)*
+- **Como o resultado foi validado:** a fórmula $C(n)$ é verificada automaticamente nos testes (todo n de 1 a 1024 pela implementação e até 10⁴ pela recorrência); o contraexemplo e a frequência de instabilidade são testes automatizados com semente fixa; a suíte completa (80 testes) passa. *(a autora deve acrescentar sua própria verificação, por exemplo refazer a dedução da Seção 3.1 à mão.)*
