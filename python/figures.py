@@ -142,7 +142,7 @@ def fig1_normalized(cpp):
 
 
 def fig3_time_cpp(cpp):
-    """Tempo mediano em C++ com N = 10^4: barras agrupadas por cenário."""
+    """Tempo médio em C++ com N = 10^4: barras agrupadas por cenário."""
     n = 10000
     dists = ["random", "sorted", "reverse", "duplicates", "almost_sorted"]
     algs = [V1, BASIC, FINAL, MERGE]
@@ -152,11 +152,11 @@ def fig3_time_cpp(cpp):
     for i, alg in enumerate(algs):
         name, color, _, _ = SERIES[alg]
         xs = [d + (i - (len(algs) - 1) / 2) * width for d in range(len(dists))]
-        ys = [float(cpp[dist][alg][n]["tempo_mediana_ms"]) for dist in dists]
+        ys = [float(cpp[dist][alg][n]["tempo_media_ms"]) for dist in dists]
         ax.bar(xs, ys, width=width - gap, color=color, label=name, zorder=2)
     ax.set_xticks(range(len(dists)))
     ax.set_xticklabels([DIST_LABEL[d] for d in dists], color=INK_2)
-    ax.set_ylabel("tempo mediano (ms)")
+    ax.set_ylabel("tempo médio (ms)")
     ax.set_ylim(0, None)
     style_axes(ax)
     ax.legend(loc="upper center", ncol=4, frameon=False, bbox_to_anchor=(0.5, 1.13))
@@ -192,7 +192,7 @@ def fig2_sorted_reverse(cpp):
 def annex_grid(py):
     """Grade completa do benchmark Python: tempo, comparações e movimentações × N (log-log)."""
     dists = ["random", "sorted", "reverse", "duplicates", "almost_sorted"]
-    metrics = [("tempo_mediana_ms", "Tempo mediano (ms)"), ("comparacoes", "Comparações"),
+    metrics = [("tempo_media_ms", "Tempo médio (ms)"), ("comparacoes", "Comparações"),
                ("movimentacoes", "Movimentações")]
     fig, axes = plt.subplots(len(dists), 3, figsize=(16, 4 * len(dists)), squeeze=False)
     for r, dist in enumerate(dists):

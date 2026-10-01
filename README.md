@@ -72,7 +72,7 @@ python python/student_template.py
 python python/benchmark.py --trials 10 --plot python/benchmark_results.png --csv python/benchmark_results.csv --md python/benchmark_output.md
 ```
 
-Mede, para N de 10 a 10⁴ e cinco distribuições (aleatória, ordenada, reversa, com repetições e quase ordenada), o tempo mediano com desvio-padrão, as comparações e as movimentações. A semente padrão é 42 (`--seed`). Os algoritmos Θ(n²) param em N = 2500.
+Mede, para N de 10 a 10⁴ e cinco distribuições (aleatória, ordenada, reversa, com repetições e quase ordenada), o tempo médio e o mediano com desvio-padrão, as comparações e as movimentações. A semente padrão é 42 (`--seed`). Os algoritmos Θ(n²) param em N = 2500.
 
 ### C++
 

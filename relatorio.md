@@ -319,7 +319,7 @@ Ou seja, a mesma propriedade que elimina os testes de fronteira (poder atravessa
 - Batcher também ordena as metades em sentidos opostos, mas funde a sequência bitônica com uma **rede de comparadores** (meia-limpeza recursiva) de custo $\Theta(m\log m)$ por fusão, totalizando $\Theta(n\log^2 n)$ comparações. Em troca, ele é paralelizável e independente dos dados.
 - O Mirror-Merge funde a mesma sequência bitônica **sequencialmente** com dois ponteiros em $\Theta(m)$, totalizando $\Theta(n\log n)$. Perde o paralelismo e, com o atalho, também a independência dos dados.
 
-**Frente ao Quick Sort.** Ambos são $\Theta(n\log n)$ no caso médio. O Quick Sort é in-place ($O(\log n)$ de pilha) mas tem pior caso $\Theta(n^2)$. A mediana de três só atenua esse risco. O Mirror-Merge garante $\Theta(n\log n)$ em qualquer entrada, ao custo de $O(n)$ de memória extra. Na prática, o Quick Sort foi o mais rápido em todos os cenários (Seção 5).
+**Frente ao Quick Sort.** Ambos são $\Theta(n\log n)$ no caso médio. O Quick Sort é in-place ($O(\log n)$ de pilha) mas tem pior caso $\Theta(n^2)$. A mediana de três só atenua esse risco. O Mirror-Merge garante $\Theta(n\log n)$ em qualquer entrada, ao custo de $O(n)$ de memória extra. Na prática, o Quick Sort foi o mais rápido entre os algoritmos $\Theta(n\log n)$ em todos os cenários (Seção 5).
 
 **Frente ao Insertion Sort.** O Insertion Sort é **adaptativo em tempo**: $\Theta(n)$ em vetores já ordenados, o que o faz vencer em entradas pequenas ou quase ordenadas. O Mirror-Merge, com o atalho, também faz só $n - 1$ comparações num vetor ordenado, mas continua movendo $\Theta(n\log n)$ elementos. Em contrapartida, não degrada para $\Theta(n^2)$ nas entradas aleatórias e reversas: no vetor reverso, faz no máximo $2(n-1)$ comparações, contra $n(n-1)/2$ do Insertion Sort.
 
@@ -329,14 +329,14 @@ Ou seja, a mesma propriedade que elimina os testes de fronteira (poder atravessa
 
 ### 5.1 Metodologia
 
-- **Ambiente:** Windows 11, Intel Core i7-1165G7 (2,8 GHz), 8 GB de RAM, execução em um único processo, sem outras cargas pesadas durante as medições.
+- **Ambiente:** Windows 11, Intel Core i7-1165G7 (2,8 GHz), 8 GB de RAM, notebook **ligado na tomada**, execução em um único processo, sem outras cargas pesadas durante as medições. (Numa rodada de teste na bateria, o Windows reduziu a frequência do processador e todos os tempos subiram de 40% a 60%, com mais variação; essas medições foram descartadas.)
   - Python 3.13.9 (`make benchmark_python` ou o comando do `README.md`), **10 repetições**.
   - C++17 compilado com g++ 16.1.0 (MSYS2 UCRT64) e `-O3` (`make run_benchmark_cpp`), **100 repetições**, porque em C++ cada medição leva microssegundos.
 - **Tamanhos:** N ∈ {10, 100, 500, 1000, 2500, 5000, 10000}. Os algoritmos $\Theta(n^2)$ (Bubble, Selection, Insertion) param em N = 2500.
 - **Cenários:** aleatório uniforme, já ordenado, estritamente reverso, com muitas repetições (5 valores distintos) e quase ordenado (~5% de trocas).
-- **Repetições intercaladas:** em cada repetição, todos os algoritmos ordenam o mesmo vetor, em ordem sorteada, para que oscilações de carga e temperatura da máquina afetem todos igualmente. Em Python, o coletor de lixo fica desligado durante cada medição (como no módulo `timeit`). O tempo reportado é a **mediana** ± desvio-padrão. Toda saída é conferida contra `sorted()` / `std::sort`. Os dados são gerados com semente fixa (42).
+- **Repetições intercaladas:** em cada repetição, todos os algoritmos ordenam o mesmo vetor, em ordem sorteada, para que oscilações de carga e temperatura da máquina afetem todos igualmente. Em Python, o coletor de lixo fica desligado durante cada medição (como no módulo `timeit`). O tempo reportado nas tabelas é a **média** ± desvio-padrão, como pede o enunciado. Os CSVs também registram a mediana, que é menos sensível a medições isoladas fora da curva; as conclusões abaixo são as mesmas com as duas medidas. Toda saída é conferida contra `sorted()` / `std::sort`. Os dados são gerados com semente fixa (42).
 - **Versões medidas:** "Mirror-Merge" é a versão final (com atalho); "sem atalho" tem só os refinamentos 1 e 2; "v1" é a versão original, incluída **apenas no benchmark C++** (`cpp/benchmark.cpp`) como referência, para medir o efeito dos refinamentos na mesma execução.
-- **Reprodutibilidade:** o benchmark C++ foi executado 3 vezes. As medianas variaram até cerca de 20% entre execuções em alguns casos, mas a ordem entre os algoritmos e todas as conclusões abaixo se mantiveram nas três.
+- **Reprodutibilidade:** o benchmark C++ foi executado 3 vezes. As médias variaram até cerca de 25% entre execuções em alguns casos (principalmente com N = 10³), mas as conclusões abaixo se mantiveram nas três. No caso aleatório, a ordem entre o Mirror-Merge e o Merge clássico alterna de uma execução para outra, o que é compatível com o empate descrito na Seção 5.6.
 - **Artefatos:** `python/benchmark_results.csv`, `python/benchmark_output.md`, `cpp/benchmark_results_cpp.csv` e `cpp/benchmark_output_cpp.md`. As figuras deste relatório (pasta `figuras/`) são geradas a partir desses CSVs por `python python/figures.py`. As Figuras 1 a 3 usam os dados do C++, o único benchmark que inclui a v1; as contagens de operações não dependem da linguagem. A grade completa do benchmark Python, com todos os algoritmos, está no Anexo A.
 
 ### 5.2 Comparações: as fórmulas confirmadas
@@ -376,45 +376,45 @@ Valores médios em N = 10⁴ (Python; as contagens independem da linguagem).
 - **A diferença do Merge Sort em Python é artefato de instrumentação:** a implementação de `classical.py` conta só os `append` (1 por elemento por nível) e não as cópias feitas pelo fatiamento `lst[:mid]`. O Merge Sort do pacote C++ usa um buffer único e conta as duas escritas, como o Mirror-Merge, e o resultado é **idêntico** (267 232). Isso confirma que os dois métodos movem a mesma quantidade de dados.
 - O Quick Sort com partição de Hoare move muito menos, e zero em vetor já ordenado, porque só troca elementos fora do lugar.
 
-### 5.4 Tempo em Python (ms, mediana ± desvio-padrão, 10 repetições)
+### 5.4 Tempo em Python (ms, média ± desvio-padrão, 10 repetições)
 
 | Cenário | N | Mirror-Merge | Sem atalho | Merge Sort | Quick Sort | Insertion Sort |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Aleatório | 1 000 | 2,45 ± 0,11 | 2,36 ± 0,13 | 2,74 ± 0,22 | 1,96 ± 0,12 | 34,91 ± 2,95 |
-| Aleatório | 10 000 | 35,00 ± 4,86 | 32,92 ± 1,95 | 37,88 ± 7,55 | 25,72 ± 4,56 | não medido |
-| Ordenado | 10 000 | 22,91 ± 0,61 | 30,90 ± 0,50 | 29,96 ± 0,65 | 15,60 ± 0,32 | (0,17 em N = 10³) |
-| Reverso | 10 000 | 23,20 ± 1,87 | 31,61 ± 4,94 | 30,39 ± 2,37 | 16,87 ± 0,96 | não medido |
-| Repetidos | 10 000 | 21,42 ± 3,42 | 20,53 ± 3,64 | 23,56 ± 2,98 | 18,03 ± 2,04 | não medido |
-| Quase ordenado | 10 000 | 31,19 ± 0,96 | 31,23 ± 0,99 | 35,55 ± 1,23 | 17,86 ± 0,80 | não medido |
+| Aleatório | 1 000 | 1,78 ± 0,21 | 2,01 ± 0,85 | 2,04 ± 0,29 | 1,53 ± 0,41 | 26,10 ± 3,85 |
+| Aleatório | 10 000 | 33,12 ± 0,81 | 32,12 ± 1,09 | 39,10 ± 1,33 | 25,62 ± 0,68 | não medido |
+| Ordenado | 10 000 | 22,33 ± 2,72 | 29,46 ± 3,85 | 30,54 ± 1,10 | 15,29 ± 2,12 | (0,19 em N = 10³) |
+| Reverso | 10 000 | 22,10 ± 3,85 | 29,30 ± 4,65 | 29,46 ± 3,45 | 15,51 ± 2,90 | não medido |
+| Repetidos | 10 000 | 30,44 ± 0,56 | 29,63 ± 0,69 | 33,84 ± 0,71 | 25,03 ± 0,54 | não medido |
+| Quase ordenado | 10 000 | 31,34 ± 1,02 | 31,15 ± 0,70 | 35,90 ± 1,38 | 17,98 ± 0,56 | não medido |
 
-*Validade:* o Merge Sort de `classical.py` usa fatiamento e `append` (listas novas a cada chamada), enquanto o Mirror-Merge usa índices sobre um buffer único. Em Python, as diferenças entre os dois misturam efeito algorítmico e estilo de implementação. A comparação justa está na Seção 5.5. Já a comparação entre as versões do Mirror-Merge é justa: o atalho reduz o tempo em **26%** nos vetores ordenado e reverso (22,9 contra 30,9 ms) e custa cerca de 5% no aleatório e nos repetidos.
+*Validade:* o Merge Sort de `classical.py` usa fatiamento e `append` (listas novas a cada chamada), enquanto o Mirror-Merge usa índices sobre um buffer único. Em Python, as diferenças entre os dois misturam efeito algorítmico e estilo de implementação. A comparação justa está na Seção 5.5. Já a comparação entre as versões do Mirror-Merge é justa: o atalho reduz o tempo em **24% a 25%** nos vetores ordenado e reverso (22,3 contra 29,5 ms no ordenado) e custa cerca de 3% no aleatório e nos repetidos.
 
-### 5.5 Tempo em C++ (ms, mediana ± desvio-padrão, 100 repetições)
+### 5.5 Tempo em C++ (ms, média ± desvio-padrão, 100 repetições)
 
 Aqui o Merge Sort do pacote usa índices, um buffer único e o mesmo critério de contagem do Mirror-Merge (Seção 5.3), então a comparação isola o efeito algorítmico.
 
 | Cenário | N | Mirror-Merge | Sem atalho | v1 (original) | Merge Sort | Quick Sort |
 | :--- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Aleatório | 1 000 | 0,044 ± 0,005 | 0,044 ± 0,003 | 0,042 ± 0,003 | 0,044 ± 0,006 | 0,041 ± 0,003 |
-| Aleatório | 10 000 | 0,557 ± 0,079 | 0,574 ± 0,064 | 0,538 ± 0,040 | 0,560 ± 0,051 | 0,506 ± 0,047 |
-| Ordenado | 10 000 | **0,138** ± 0,027 | 0,163 ± 0,036 | 0,253 ± 0,541 | 0,189 ± 0,025 | 0,067 ± 0,010 |
-| Reverso | 10 000 | **0,143** ± 0,014 | 0,178 ± 0,013 | 0,256 ± 0,013 | 0,181 ± 0,032 | 0,069 ± 0,006 |
-| Repetidos | 10 000 | 0,335 ± 0,028 | 0,319 ± 0,027 | 0,352 ± 0,037 | 0,350 ± 0,035 | 0,214 ± 0,008 |
-| Quase ordenado | 10 000 | 0,240 ± 0,034 | 0,234 ± 0,011 | 0,280 ± 0,011 | 0,266 ± 0,010 | 0,132 ± 0,007 |
+| Aleatório | 1 000 | 0,056 ± 0,007 | 0,057 ± 0,009 | 0,054 ± 0,007 | 0,058 ± 0,010 | 0,052 ± 0,006 |
+| Aleatório | 10 000 | 0,585 ± 0,035 | 0,588 ± 0,037 | 0,565 ± 0,040 | 0,596 ± 0,074 | 0,535 ± 0,040 |
+| Ordenado | 10 000 | **0,163** ± 0,020 | 0,187 ± 0,019 | 0,267 ± 0,030 | 0,194 ± 0,021 | 0,072 ± 0,017 |
+| Reverso | 10 000 | **0,147** ± 0,014 | 0,178 ± 0,014 | 0,263 ± 0,044 | 0,186 ± 0,022 | 0,073 ± 0,010 |
+| Repetidos | 10 000 | 0,339 ± 0,038 | 0,335 ± 0,058 | 0,360 ± 0,022 | 0,360 ± 0,057 | 0,210 ± 0,020 |
+| Quase ordenado | 10 000 | 0,246 ± 0,018 | 0,246 ± 0,025 | 0,296 ± 0,036 | 0,274 ± 0,020 | 0,140 ± 0,012 |
 
-![Figura 3: tempo mediano em C++ com N = 10 000, por cenário, para a v1, a versão sem atalho, a versão final e o Merge Sort clássico](figuras/fig3_tempo_cpp.png)
+![Figura 3: tempo médio em C++ com N = 10 000, por cenário, para a v1, a versão sem atalho, a versão final e o Merge Sort clássico](figuras/fig3_tempo_cpp.png)
 
-**Figura 3.** Tempo mediano em C++ com N = 10⁴ (os valores exatos estão na tabela acima). Em cada cenário, as barras seguem a ordem v1 → sem atalho → final → Merge clássico, mostrando o efeito acumulado dos refinamentos.
+**Figura 3.** Tempo médio em C++ com N = 10⁴ (os valores exatos estão na tabela acima). Em cada cenário, as barras seguem a ordem v1 → sem atalho → final → Merge clássico, mostrando o efeito acumulado dos refinamentos.
 
-(Em N = 10 e 100, os tempos ficam abaixo de 1 µs e são dominados por ruído; por isso a análise usa N ≥ 1000. O desvio de 0,541 da v1 no vetor ordenado vem de uma única medição fora da curva; a mediana não é afetada.)
+(Em N = 10 e 100, os tempos ficam abaixo de 1 µs e são dominados por ruído; por isso a análise usa N ≥ 1000.)
 
 ### 5.6 Análise crítica
 
 1. **As contagens seguem a teoria exatamente.** As comparações sem atalho coincidem com $W(n)$, as com atalho ficam entre $n - 1$ e $C_{max}(n)$ e abaixo de $2(n-1)$ nos vetores ordenado e reverso, e as movimentações coincidem com $M(n)$ em todos os cenários (Seções 5.2 e 5.3).
 2. **A curva de crescimento é a de um algoritmo $\Theta(n\log n)$.** No gráfico log-log do Anexo A, o Mirror-Merge acompanha paralelamente o Merge e o Quick Sort, enquanto os algoritmos $\Theta(n^2)$ têm inclinação visivelmente maior (≈ 2). Mesmo nos vetores ordenados, em que as comparações são lineares, o tempo cresce como $n\log n$, porque as movimentações continuam $\Theta(n\log n)$ (Seção 3.3).
-3. **Na comparação justa (C++), o Mirror-Merge empata no caso aleatório e vence o Merge clássico nos cenários com ordem pré-existente:** **27% mais rápido** no ordenado (0,138 contra 0,189 ms), **21%** no reverso, **10%** no quase ordenado e **4%** nos repetidos. No aleatório, a diferença (0,557 contra 0,560 ms) é muito menor que o desvio-padrão.
-4. **Efeito de cada refinamento (C++, mesma execução).** Nos vetores ordenado e reverso, a v1 levava cerca de 0,255 ms; os refinamentos 1 e 2 reduziram para cerca de 0,17 ms e o atalho para cerca de 0,14 ms, **45% menos que a v1** no total. No caso aleatório, porém, a v1 é a mais rápida das três versões (0,538 contra 0,557 e 0,574 ms). *Hipótese, não verificada no código de máquina:* o compilador pode ter traduzido a fusão da v1 com instruções condicionais sem desvio, que custam o mesmo com dados previsíveis ou aleatórios, e a das versões novas com desvios, que são quase gratuitos quando o resultado da comparação é previsível (ordenado, reverso) e caros quando é aleatório. Isso também indica que o refinamento 1 sozinho tem pouco efeito em C++: com `-O3`, o g++ já costuma tirar do laço testes que não mudam (*loop unswitching*).
-5. **O Quick Sort é o mais rápido** em todos os cenários e nas duas linguagens: é in-place, move pouco e, com mediana de três, não degrada em entradas ordenadas ou reversas.
+3. **Na comparação justa (C++), o Mirror-Merge empata no caso aleatório e vence o Merge clássico nos cenários com ordem pré-existente:** **16% mais rápido** no ordenado (0,163 contra 0,194 ms), **21%** no reverso, **10%** no quase ordenado e **6%** nos repetidos. No aleatório, a diferença (0,585 contra 0,596 ms) é menor que o desvio-padrão e muda de sinal entre execuções.
+4. **Efeito de cada refinamento (C++, mesma execução).** Nos vetores ordenado e reverso, a v1 levava cerca de 0,265 ms; os refinamentos 1 e 2 reduziram para cerca de 0,18 ms e o atalho para cerca de 0,15 ms, **cerca de 40% menos que a v1** no total. No caso aleatório, porém, a v1 é a mais rápida das três versões (0,565 contra 0,585 e 0,588 ms), nas três execuções. *Hipótese, não verificada no código de máquina:* o compilador pode ter traduzido a fusão da v1 com instruções condicionais sem desvio, que custam o mesmo com dados previsíveis ou aleatórios, e a das versões novas com desvios, que são quase gratuitos quando o resultado da comparação é previsível (ordenado, reverso) e caros quando é aleatório. Isso também indica que o refinamento 1 sozinho tem pouco efeito em C++: com `-O3`, o g++ já costuma tirar do laço testes que não mudam (*loop unswitching*).
+5. **Entre os algoritmos $\Theta(n\log n)$, o Quick Sort é o mais rápido** em todos os cenários e nas duas linguagens: é in-place, move pouco e, com mediana de três, não degrada em entradas ordenadas ou reversas. No vetor já ordenado, o Insertion Sort é ainda mais rápido (0,19 ms contra 1,1 ms do Quick Sort em N = 10³, em Python), porque faz só n − 1 comparações e nenhuma movimentação desnecessária.
 6. **A tese original ("menos testes de fronteira deixam a fusão mais rápida") não se confirmou sozinha.** O que tornou o Mirror-Merge competitivo foram os refinamentos 2 e 3, que reduzem comparações. O único teste de fronteira por iteração é uma propriedade elegante, mas seu efeito no tempo depende do compilador e não aparece de forma isolada nas medições.
 
 ---
@@ -452,7 +452,7 @@ Aqui o Merge Sort do pacote usa índices, um buffer único e o mesmo critério d
   2. **Testes**: adicionou o Mirror-Merge à suíte `test_suite.py` (classes `TestMirrorMergeSort`, `TestMirrorMergeSortBasic` e `TestMirrorMergeScaling`, com N = 10 a 10⁴ nos cenários obrigatórios, verificação das fórmulas de comparações e movimentações, entradas que atingem o melhor e o pior caso e o contraexemplo de instabilidade).
   3. **Benchmark**: estendeu `benchmark.py` até N = 10⁴, com repetições intercaladas, desvio-padrão, gráfico de movimentações × N, eixos log-log, exportação CSV e Markdown e semente configurável; atualizou o README e o Makefile e adicionou `requirements.txt`.
   4. **Refinamentos do algoritmo (Seção 1.4)**: na segunda revisão, **propôs e implementou** os três refinamentos (sentido testado fora do laço, laço `i < j` sem a comparação final e atalho adaptativo com teste estrito no empate e só para m ≥ 3) em `student_template.py`, preservando a versão sem atalho pelo parâmetro `adaptive`.
-  5. **Versão C++**: escreveu `cpp/mirror_merge.hpp/.cpp` (porta do algoritmo, com e sem atalho), os testes correspondentes em `cpp/test_runner.cpp` e a extensão de `cpp/benchmark.cpp` (mediana, desvio-padrão, 100 repetições intercaladas, CSV e a v1 como referência); executou os testes e os benchmarks.
+  5. **Versão C++**: escreveu `cpp/mirror_merge.hpp/.cpp` (porta do algoritmo, com e sem atalho), os testes correspondentes em `cpp/test_runner.cpp` e a extensão de `cpp/benchmark.cpp` (média, mediana, desvio-padrão, 100 repetições intercaladas, CSV e a v1 como referência); executou os testes e os benchmarks.
   6. **Relatório**: redigiu as Seções 1.4, 2 (pseudocódigo, exemplos e invariantes), 3 (deduções de $W(n)$, $C_{max}(n)$, melhor caso, caso médio e movimentações; estabilidade), 4.2, 5 e 6, a partir das medições.
 - **Modificações realizadas:** *(a preencher pela autora: o que foi reescrito, cortado ou corrigido no texto e no código sugeridos.)*
 - **Como o resultado foi validado:** as fórmulas $W(n)$, $C_{max}(n)$ e $M(n)$ são verificadas automaticamente nos testes, em Python e em C++ (todo n de 1 a 1024 pela implementação e até 10⁴ pelas recorrências); o melhor e o pior caso são confirmados por entradas construídas que atingem exatamente $n - 1$ e $C_{max}(n)$; o contraexemplo e a frequência de instabilidade são testes automatizados com semente fixa; a suíte Python (94 testes) e a suíte C++ passam. *(a autora deve acrescentar sua própria verificação, por exemplo refazer à mão as deduções da Seção 3 e os exemplos das Seções 2.2 e 2.3.)*

@@ -19,6 +19,7 @@ struct BenchmarkResult {
     int size;
     std::string dist;
     double time_ms;      // mediana
+    double time_mean_ms; // média
     double time_std_ms;  // desvio-padrão
     double comparisons;  // média entre as repetições
     double moves;        // média entre as repetições
@@ -112,13 +113,17 @@ static double median(std::vector<double> v) {
     return v.size() % 2 ? v[m] : (v[m - 1] + v[m]) / 2.0;
 }
 
+static double mean(const std::vector<double>& v) {
+    double sum = 0.0;
+    for (double x : v) sum += x;
+    return v.empty() ? 0.0 : sum / v.size();
+}
+
 static double stdev(const std::vector<double>& v) {
     if (v.size() < 2) return 0.0;
-    double mean = 0.0;
-    for (double x : v) mean += x;
-    mean /= v.size();
+    double m = mean(v);
     double acc = 0.0;
-    for (double x : v) acc += (x - mean) * (x - mean);
+    for (double x : v) acc += (x - m) * (x - m);
     return std::sqrt(acc / (v.size() - 1));
 }
 
@@ -157,7 +162,7 @@ std::vector<BenchmarkResult> benchmark_dist(const std::string& dist, const std::
         }
 
         for (size_t a : active) {
-            out.push_back({ALGORITHMS[a].first, n, dist, median(times[a]), stdev(times[a]),
+            out.push_back({ALGORITHMS[a].first, n, dist, median(times[a]), mean(times[a]), stdev(times[a]),
                            comps[a], moves[a]});
         }
     }
@@ -206,10 +211,13 @@ int main(int argc, char** argv) {
     }
 
     std::cout << "# Resultados dos Benchmarks em C++ (TP1, APA)\n\n"
-              << "Tempo em ms: mediana ± desvio-padrão de " << trials << " repetições intercaladas.\n";
+              << "Tempo em ms, " << trials << " repetições intercaladas: média ± desvio-padrão e mediana.\n";
     for (const auto& d : dists) {
-        print_table(all, d, sizes, "tempo (ms)", [](const BenchmarkResult& r) {
-            return fmt(r.time_ms, 4) + " ± " + fmt(r.time_std_ms, 4);
+        print_table(all, d, sizes, "tempo médio (ms)", [](const BenchmarkResult& r) {
+            return fmt(r.time_mean_ms, 4) + " ± " + fmt(r.time_std_ms, 4);
+        });
+        print_table(all, d, sizes, "tempo mediano (ms)", [](const BenchmarkResult& r) {
+            return fmt(r.time_ms, 4);
         });
         print_table(all, d, sizes, "comparações", [](const BenchmarkResult& r) {
             return fmt(r.comparisons, 0);
@@ -220,10 +228,10 @@ int main(int argc, char** argv) {
     }
 
     std::ofstream csv(csv_path);
-    csv << "distribuicao,algoritmo,n,tempo_mediana_ms,tempo_desvio_ms,comparacoes,movimentacoes\n";
+    csv << "distribuicao,algoritmo,n,tempo_mediana_ms,tempo_media_ms,tempo_desvio_ms,comparacoes,movimentacoes\n";
     for (const auto& r : all) {
         csv << r.dist << "," << r.alg_name << "," << r.size << "," << fmt(r.time_ms, 6) << ","
-            << fmt(r.time_std_ms, 6) << "," << fmt(r.comparisons, 1) << "," << fmt(r.moves, 1) << "\n";
+            << fmt(r.time_mean_ms, 6) << "," << fmt(r.time_std_ms, 6) << "," << fmt(r.comparisons, 1) << "," << fmt(r.moves, 1) << "\n";
     }
     std::cout << "\nCSV salvo em: " << csv_path << std::endl;
     return 0;
